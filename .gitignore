@@ -1,0 +1,5 @@
+
+*.xlsx
+*.xlsx
+.vs/DataValidation/v15/.suo
+*.pyc

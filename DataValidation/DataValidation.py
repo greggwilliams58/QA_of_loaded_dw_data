@@ -11,10 +11,11 @@ def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
     FNum = '105'
-    FName = 'TMILEAGE'
+    FName = 'FMILEAGE'
     lowerdatefilter = 2018201901
     upperdatefilter = 2019202005
     
+    #test
     #metadata for source and metadatafiles
     #FNum = '313'
     #FName = 'DISAGGPPMCASL'
