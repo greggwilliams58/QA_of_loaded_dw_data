@@ -15,7 +15,7 @@ def main():
     lowerdatefilter = 2018201901
     upperdatefilter = 2019202005
     
-    #test
+    #testing for changes
     #metadata for source and metadatafiles
     #FNum = '313'
     #FName = 'DISAGGPPMCASL'
