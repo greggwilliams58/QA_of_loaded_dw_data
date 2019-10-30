@@ -99,34 +99,47 @@ def GetSourceData(feednumber,feedname,metadata):
 def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
     TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
- 
-    TOC_Names.set_index(dimtref, inplace=True)
+    print(TOC_Names.info())
 
-
+    swt = source
     for lookup in sourcereference:
         print(lookup)
-        print("source before join\n")
-        print(source.info())
-        
-        source.set_index(lookup,inplace=True)
 
-        source_with_toc = source.join(TOC_Names['train_operating_company_name'])
-
-
-        print("source after join\n")
-        print(source.info())
-        print("source after index reset")
-        swt = source_with_toc.reset_index()
-        print(swt.info())
-        
-        #source_with_toc[lookup] = source_with_toc.index
-
-
-
-        swt.set_index(key_elements,inplace=True)
-
-        swt.sort_index(axis=0,level=key_elements, inplace=True)
+        export =    swt.merge(TOC_Names[['train_operating_company_id','train_operating_company_name']],how='left',left_on=lookup,right_on=dimtref)
+    #some form of recursion here?
     
+    #TOC_Names.set_index(dimtref, inplace=True)
+
+    #swt = source
+    #for lookup in sourcereference:
+    #    print(lookup)
+    #    print("source before join\n")
+    #    print(swt.info())
+        
+    #    swt.set_index(lookup,inplace=True)
+
+    #    source_with_toc = swt.join(TOC_Names['train_operating_company_name'])
+
+
+    #    print("source after join\n")
+    #    print(swt.info())
+    #    print("source after index reset")
+    #    swt = source_with_toc.reset_index()
+    #    swt.rename(columns={'index':lookup}, inplace=True)
+    #    print(swt.info())
+    #    print(swt.head(5))
+        
+    #    #source_with_toc[lookup] = source_with_toc.index
+
+
+
+    #    swt.set_index(key_elements,inplace=True)
+
+    #    print("data after index set\n")
+    #    print(swt.info())
+
+    #    swt.sort_index(axis=0,level=key_elements, inplace=True)
+    export.to_csv("swt.csv")
 
     return swt
 
