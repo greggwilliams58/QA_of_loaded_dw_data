@@ -10,8 +10,8 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '105'
-    FName = 'FMILEAGE'
+    FNum = '104'
+    FName = 'DELAYS'
     lowerdatefilter = 2018201901
     upperdatefilter = 2019202005
     
@@ -20,11 +20,11 @@ def main():
     #FNum = '313'
     #FName = 'DISAGGPPMCASL'
     
-    #dictionary holding the 0) schema, 1)table_name, 2)index fields
+    #dictionary holding the 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field
     unique_feed_features = {   
-                    
-                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','operator_type','sector']],
-                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','provisional']] 
+                    '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],['train_operating_company_id']],
+                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','operator_type','sector'],['train_operating_company_key'],['train_operating_company_key']],
+                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','provisional'],['train_operating_company_key'],['train_operating_company_key']] 
                      
                      }
 
@@ -35,7 +35,7 @@ def main():
     #pp.pprint(source_item_id)
 
     MD = GetMetaData(FNum,FName)
-    SD = GetSourceData (FNum,FName,MD)
+    #SD = GetSourceData (FNum,FName,MD)
 
     #pp.pprint(MD)
 
@@ -49,9 +49,13 @@ def main():
     DW = getDWdata(schema,table_name,latestSID)
     DWold = getDWdata(schema,table_name,previousSID)
 
-    DW = lookupTOCdata(DW, unique_feed_features[FNum+FName][2])
-    DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2])
+    
 
+    DW = lookupTOCdata(DW, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
+    DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+
+    del DW['source_item_id']
+    del DWold['source_item_id']
 
     #only get data greater than  2018201901
     DWfiltered =    DW.loc[(DW.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DW.index.get_level_values('financial_period_key') <= upperdatefilter) ]
@@ -76,8 +80,8 @@ def main():
 
     #export various dataframes to excel
     with pd.ExcelWriter(f"data validation for {FNum}_{FName}.xlsx",engine='openpyxl') as writer:
-
-        SD.to_excel(writer,sheet_name='Source_data')
+        print("writing to xls")
+        #SD.to_excel(writer,sheet_name='Source_data')
         DWoldfiltered.to_excel(writer,sheet_name="Previous_DW_load")
         DWfiltered.to_excel(writer,sheet_name="Latest_DW_load")
         #TOC_Names.to_excel(writer,sheet_name="dimt_TOC")

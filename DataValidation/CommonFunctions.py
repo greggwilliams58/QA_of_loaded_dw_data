@@ -35,6 +35,20 @@ def GetMetaData(feednumber, feedname):
 
 
 def GetSourceData(feednumber,feedname,metadata):
+    """
+    This gets the source data as placed into the ETL System and returns the data as a dataframe
+
+    Parameters
+    feednumber:     An int representing the feed number being searched for
+    feedname:       A string representing the feed_name being searched for
+    sourcefilename: A string representing the name of the file being searched for
+    metadata:       A dictionary holding the metadata information about the source file
+
+    Returns
+    sourcedata:     A dataframe holding the source data
+    """
+    
+    
     rootOfSourceData = '//orrdwfs1.file.core.windows.net/feeds/LIVE/Process/'
     
     #get containing folder
@@ -82,21 +96,30 @@ def GetSourceData(feednumber,feedname,metadata):
     return sourcedata
 
 
-def lookupTOCdata(source,key_elements):
+def lookupTOCdata(source,key_elements,sourcereference,dimtref):
+
     TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
+    print(sourcereference)
+    print(lookup)
+    print(dimtref)
+    print(TOC_Names.info())
+    TOC_Names.set_index('train_operating_company_id', inplace=True)
+
+
+    for lookup in sourcereference:
+ 
+
+
+        source.set_index(lookup,inplace=True)
+
+        source_with_toc = source.join(TOC_Names['train_operating_company_name'])
+
+        source_with_toc[lookup] = source_with_toc.index
+
+        source_with_toc.set_index(key_elements,inplace=True)
+
+        source_with_toc.sort_index(axis=0,level=key_elements, inplace=True)
     
-    TOC_Names.set_index('train_operating_company_key', inplace=True)
-    source.set_index('train_operating_company_key',inplace=True)
-
-    source_with_toc = source.join(TOC_Names['train_operating_company_name'])
-
-    source_with_toc['train_operating_company_key'] = source_with_toc.index
-
-    source_with_toc.set_index(key_elements,inplace=True)
-
-    source_with_toc.sort_index(axis=0,level=key_elements, inplace=True)
-    
-    del source_with_toc['source_item_id']
 
     return source_with_toc
 
