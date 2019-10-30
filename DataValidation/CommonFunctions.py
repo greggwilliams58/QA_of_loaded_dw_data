@@ -99,29 +99,36 @@ def GetSourceData(feednumber,feedname,metadata):
 def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
     TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
-    print(sourcereference)
-    print(lookup)
-    print(dimtref)
-    print(TOC_Names.info())
-    TOC_Names.set_index('train_operating_company_id', inplace=True)
+ 
+    TOC_Names.set_index(dimtref, inplace=True)
 
 
     for lookup in sourcereference:
- 
-
-
+        print(lookup)
+        print("source before join\n")
+        print(source.info())
+        
         source.set_index(lookup,inplace=True)
 
         source_with_toc = source.join(TOC_Names['train_operating_company_name'])
 
-        source_with_toc[lookup] = source_with_toc.index
 
-        source_with_toc.set_index(key_elements,inplace=True)
+        print("source after join\n")
+        print(source.info())
+        print("source after index reset")
+        swt = source_with_toc.reset_index()
+        print(swt.info())
+        
+        #source_with_toc[lookup] = source_with_toc.index
 
-        source_with_toc.sort_index(axis=0,level=key_elements, inplace=True)
+
+
+        swt.set_index(key_elements,inplace=True)
+
+        swt.sort_index(axis=0,level=key_elements, inplace=True)
     
 
-    return source_with_toc
+    return swt
 
     
 def individualranges(df, key_elements,change_type):
