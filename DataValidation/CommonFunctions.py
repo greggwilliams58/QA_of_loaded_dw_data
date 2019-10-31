@@ -102,53 +102,36 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     
 
     swt = source
-    for lookup in sourcereference:
-        print(f"This is the sourcereference: {sourcereference}\n")
-        print(f"This is the lookup value: {lookup}\n")
-        print(f"This is the dim reference: {dimtref}\n")
+    for counter,lookup in enumerate(sourcereference):
+        #print(f"This is the sourcereference: {sourcereference}\n")
+        #print(f"This is the lookup value: {lookup}\n")
+        #print(f"This is the dim reference: {dimtref}\n")
         temp_df =    swt.merge(TOC_Names[[dimtref,'train_operating_company_name']],how='left',left_on=lookup,right_on=dimtref)
         
-        temp_df = temp_df.columns.str.replace('train_operating_company_name*',lookup)
+        temp_df = temp_df.rename(columns={'train_operating_company_name':lookup + '_toc_name'})
+        
+        if lookup + '_toc_name' not in key_elements:
+            key_elements.append(lookup + '_toc_name')
+        else:
+            pass
 
+        print("This are key elements")
+        print(key_elements)
+
+        print(temp_df.info())
         swt = temp_df
 
-    
-    #TOC_Names.set_index(dimtref, inplace=True)
-
-    #swt = source
-    #for lookup in sourcereference:
-    #    print(lookup)
-    #    print("source before join\n")
-    #    print(swt.info())
-        
-    #    swt.set_index(lookup,inplace=True)
-
-    #    source_with_toc = swt.join(TOC_Names['train_operating_company_name'])
-
-
-    #    print("source after join\n")
-    #    print(swt.info())
-    #    print("source after index reset")
-    #    swt = source_with_toc.reset_index()
-    #    swt.rename(columns={'index':lookup}, inplace=True)
-    #    print(swt.info())
-    #    print(swt.head(5))
-        
-    #    #source_with_toc[lookup] = source_with_toc.index
-
-
-
-        #swt.set_index(key_elements,inplace=True)
-
-    #    print("data after index set\n")
-    #    print(swt.info())
-
-        #swt.sort_index(axis=0,level=key_elements, inplace=True)
     #remove the unnecessary linking fields from the merge
     swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
     
     del swt['source_item_id']
-    swt.to_csv("swt.csv")
+
+    swt.set_index(key_elements,inplace=True)
+    print("These are key elements prior to sorting\n")
+    print(key_elements)
+    swt = swt.sort_index(axis=0,level=key_elements)
+    
+    print(swt.info())
 
     return swt
 
@@ -170,13 +153,13 @@ def individualranges(df, key_elements,change_type):
     number_of_index_levels = df.index.nlevels
     
     measure_list = []
-
+    print("Looping through ranges of individuals")
     for (colname,coldata) in df.iteritems():
         nozerocoldata = coldata.replace(0,np.NaN)
         nonullcoldata = nozerocoldata.dropna()
 
         for group_level,new_series in nonullcoldata.groupby(key_elements):
-
+            print(f"new series here: {group_level}")
             if change_type == 'PPC':
 
                 nonull_series = new_series.pct_change().dropna()
@@ -203,6 +186,7 @@ def set_boundaries(raw_series):
     This filters a given series by a confidence interval of 95%
     """
     #print(raw_series)
+    print("setting boundaries now")
     series_stdev = raw_series.std()
 
     series_mean = raw_series.mean()
@@ -228,6 +212,7 @@ def series_to_df(measure_list,index_keys,index_levels):
     final_stacked_df:   A dataframe holding the data with each measure as a column
 
     """
+    print("converting series to df")
     #set up empty dataframes to hold output
     final_stacked_df = pd.DataFrame()
     interim_df = pd.DataFrame()

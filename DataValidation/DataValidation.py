@@ -23,8 +23,8 @@ def main():
     #dictionary holding the 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field
     unique_feed_features = {   
                     '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id'],
-                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key'],
-                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','provisional'],['train_operating_company_key'],'train_operating_company_key'] 
+                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key'],
+                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key'] 
                      
                      }
 
@@ -37,39 +37,45 @@ def main():
     MD = GetMetaData(FNum,FName)
     #SD = GetSourceData (FNum,FName,MD)
 
-    #pp.pprint(MD)
-
-    #pp.pprint(SD)
 
     latestSID = source_item_id[-1]
     previousSID = source_item_id[-2]
     #latestSID = 8947
     #previousSID = 8047
-   
+    print("getting DW data")   
     DW = getDWdata(schema,table_name,latestSID)
     DWold = getDWdata(schema,table_name,previousSID)
 
+    print("looking up TOC info")
     DW = lookupTOCdata(DW, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
     DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
 
     #only get data greater than  2018201901
+    print("filtering by dates")
     DWfiltered =    DW.loc[(DW.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DW.index.get_level_values('financial_period_key') <= upperdatefilter) ]
     DWoldfiltered = DWold.loc[(DWold.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWold.index.get_level_values('financial_period_key') <= upperdatefilter) ]
 
+    print("getting individual ranges for PPC")
     DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC') 
+    print("getting individual range for YPC")
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC')
     
     filteredDWPPC = DWPPC[DWPPC.index.get_level_values('financial_period_key')>= upperdatefilter]
 
     #absolute variance by subtraction
+    print("getting raw variance")
     variance_raw = DWfiltered.subtract(DWold)
+    print("getting raw individual variance")
     variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual')
     
     #percentage change by subtraction and then division
+    print("getting % variance")
     PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
+    print("getting * individual variances")
     PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual')
 
     #export various dataframes to excel
+    print("exporting to excel")
     with pd.ExcelWriter(f"data validation for {FNum}_{FName}.xlsx",engine='openpyxl') as writer:
         print("writing to xls")
         #SD.to_excel(writer,sheet_name='Source_data')
