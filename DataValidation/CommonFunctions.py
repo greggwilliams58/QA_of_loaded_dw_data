@@ -99,14 +99,19 @@ def GetSourceData(feednumber,feedname,metadata):
 def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
     TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
-    print(TOC_Names.info())
+    
 
     swt = source
     for lookup in sourcereference:
-        print(lookup)
+        print(f"This is the sourcereference: {sourcereference}\n")
+        print(f"This is the lookup value: {lookup}\n")
+        print(f"This is the dim reference: {dimtref}\n")
+        temp_df =    swt.merge(TOC_Names[[dimtref,'train_operating_company_name']],how='left',left_on=lookup,right_on=dimtref)
+        
+        temp_df = temp_df.columns.str.replace('train_operating_company_name*',lookup)
 
-        export =    swt.merge(TOC_Names[['train_operating_company_id','train_operating_company_name']],how='left',left_on=lookup,right_on=dimtref)
-    #some form of recursion here?
+        swt = temp_df
+
     
     #TOC_Names.set_index(dimtref, inplace=True)
 
@@ -133,13 +138,17 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
 
 
-    #    swt.set_index(key_elements,inplace=True)
+        #swt.set_index(key_elements,inplace=True)
 
     #    print("data after index set\n")
     #    print(swt.info())
 
-    #    swt.sort_index(axis=0,level=key_elements, inplace=True)
-    export.to_csv("swt.csv")
+        #swt.sort_index(axis=0,level=key_elements, inplace=True)
+    #remove the unnecessary linking fields from the merge
+    swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
+    
+    del swt['source_item_id']
+    swt.to_csv("swt.csv")
 
     return swt
 

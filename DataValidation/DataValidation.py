@@ -22,9 +22,9 @@ def main():
     
     #dictionary holding the 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field
     unique_feed_features = {   
-                    '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],['train_operating_company_id']],
-                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','operator_type','sector'],['train_operating_company_key'],['train_operating_company_key']],
-                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','provisional'],['train_operating_company_key'],['train_operating_company_key']] 
+                    '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id'],
+                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key'],
+                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','train_operating_company_name','provisional'],['train_operating_company_key'],'train_operating_company_key'] 
                      
                      }
 
@@ -49,24 +49,17 @@ def main():
     DW = getDWdata(schema,table_name,latestSID)
     DWold = getDWdata(schema,table_name,previousSID)
 
-    
-
     DW = lookupTOCdata(DW, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
     DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
-
-    del DW['source_item_id']
-    del DWold['source_item_id']
 
     #only get data greater than  2018201901
     DWfiltered =    DW.loc[(DW.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DW.index.get_level_values('financial_period_key') <= upperdatefilter) ]
     DWoldfiltered = DWold.loc[(DWold.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWold.index.get_level_values('financial_period_key') <= upperdatefilter) ]
 
-
     DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC') 
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC')
     
     filteredDWPPC = DWPPC[DWPPC.index.get_level_values('financial_period_key')>= upperdatefilter]
-
 
     #absolute variance by subtraction
     variance_raw = DWfiltered.subtract(DWold)
@@ -75,8 +68,6 @@ def main():
     #percentage change by subtraction and then division
     PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
     PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual')
-
-
 
     #export various dataframes to excel
     with pd.ExcelWriter(f"data validation for {FNum}_{FName}.xlsx",engine='openpyxl') as writer:
@@ -92,7 +83,6 @@ def main():
         output_to_excel(filteredDWPPC,f'No data shows as having significant Period on Period change for {upperdatefilter}',writer,f"PonP change for {upperdatefilter}")
         output_to_excel(DWYPC,'No data shows as being outside 95% confidence interval for Year on Year change',writer,f"YonY change for {str(upperdatefilter)[:8]}")
 
-
         describe_current = DWfiltered.describe()
         summary_text_new = pd.DataFrame({f"Latest Load is source item id {latestSID}":[]})
         summary_text_new.to_excel(writer,sheet_name="Summary_Data",startrow=0,startcol=0)
@@ -102,12 +92,8 @@ def main():
         summary_text_old = pd.DataFrame({f"Previous Load is source item id: {previousSID}": [ ]})
         summary_text_old.to_excel(writer,sheet_name="Summary_Data", startrow=15,startcol=0)
         describe_old.to_excel(writer,sheet_name="Summary_Data", startrow=16,startcol=0)
-
-       
+ 
     writer.save()
-
-
-
 
 if __name__ == '__main__':
     main()
