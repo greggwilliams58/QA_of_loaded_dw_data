@@ -1,4 +1,4 @@
-from CommonFunctions import GetMetaData,GetSourceData,lookupTOCdata, individualranges,output_to_excel
+from CommonFunctions import GetMetaData,GetSourceData,lookupTOCdata, individualranges,output_to_excel,setandsortindex
 from DWSource import getDWdata,getSourceItemId,getDWdimension
 from plotting_data import plot_the_data
 import pandas as pd
@@ -10,8 +10,8 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '104'
-    FName = 'DELAYS'
+    FNum = '119'
+    FName = 'TARGETS'
     lowerdatefilter = 2018201901
     upperdatefilter = 2019202005
     
@@ -31,9 +31,11 @@ def main():
     unique_feed_features = {   
                     '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id'],
                     '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key'],
-                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key'] 
-                     
-                     }
+                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key'] ,
+                    '106TSR':['NR', 'factt_106_tsr',['route','classification','financial_period_key'],['route'],'route' ],
+                    '114NRAVAILABILITY':['NR','factt_114_nravailability_freight',['financial_period_key','train_operating_company_key'] ,['train_operating_company_key'],'train_operating_company_key'],
+                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key']
+                    }
 
     #metadata for DW data
     schema = unique_feed_features[FNum+FName][0]
@@ -55,17 +57,26 @@ def main():
 
 
     print("getting DW data")   
-    DW = getDWdata(schema,table_name,latestSID)
+    DWnew = getDWdata(schema,table_name,latestSID)
+    print(DWnew)
+    print(DWnew.info())
+    
     DWold = getDWdata(schema,table_name,previousSID)
 
-
-    print("looking up TOC info")
-    DW = lookupTOCdata(DW, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
-    DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
-
+    if FNum+FName not in notoclookup:
+        print("looking up TOC info")
+        DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
+        DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+    else:
+        DWnew = setandsortindex(DWnew,unique_feed_features[FNum+FName][2])
+        DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
+        
+    
+    print("after failed lookup")
+    print(DWnew)
     #only get data greater than  2018201901
     print("filtering by dates")
-    DWfiltered =    DW.loc[(DW.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DW.index.get_level_values('financial_period_key') <= upperdatefilter) ]
+    DWfiltered =    DWnew.loc[(DWnew.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWnew.index.get_level_values('financial_period_key') <= upperdatefilter) ]
     DWoldfiltered = DWold.loc[(DWold.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWold.index.get_level_values('financial_period_key') <= upperdatefilter) ]
 
     print("getting individual ranges for PPC")

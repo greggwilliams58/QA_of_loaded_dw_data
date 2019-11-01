@@ -124,17 +124,30 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     #remove the unnecessary linking fields from the merge
     swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
     
-    del swt['source_item_id']
 
-    swt.set_index(key_elements,inplace=True)
-    print("These are key elements prior to sorting\n")
-    print(key_elements)
-    swt = swt.sort_index(axis=0,level=key_elements)
+    swt = setandsortindex(swt,key_elements)
+    #del swt['source_item_id']
+
+    #swt.set_index(key_elements,inplace=True)
+    #print("These are key elements prior to sorting\n")
+    #print(key_elements)
+    #swt = swt.sort_index(axis=0,level=key_elements)
     
-    print(swt.info())
+    #print(swt.info())
 
     return swt
 
+def setandsortindex(source,key_elements):
+    del source['source_item_id']
+    
+    source.set_index(key_elements,inplace=True)
+    print("These are key elements prior to sorting\n")
+    print(key_elements)
+    source = source.sort_index(axis=0,level=key_elements)
+    
+    print(source.info())
+
+    return source
     
 def individualranges(df, key_elements,change_type):
     """
@@ -234,6 +247,7 @@ def series_to_df(measure_list,index_keys,index_levels):
                                 .unstack([reorder_index[-2]])
                                 .reset_index(level=reorder_index[-2], drop=True))
     
+    print(final_stacked_df)
     return final_stacked_df
 
 
