@@ -248,6 +248,7 @@ def output_to_excel(df,txt,w,sname):
     w:      writer object used be ExcelWriter
     sname:  Name of sheet
     """
+    print(f"Exporting {sname} to Excel\n")
     if df.empty == True:
         v = [txt]    
         text = pd.DataFrame(v,columns=['a'])
