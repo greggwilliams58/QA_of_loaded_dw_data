@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '105'
-    FName = 'TMILEAGE'
-    lowerdatefilter = 2017201801
-    upperdatefilter = 2019202005
+    FNum = '207'
+    FName = 'GOVTSUPTOC'
+    lowerdatefilter = 20082009
+    upperdatefilter = 20192020
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -25,38 +25,47 @@ def main():
     notoclookup = ['106TSR','202SRA']
     
 
-    #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field
+    #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
     #test here for new repo
 
 
     unique_feed_features = {   
-                    '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id'],
-                    '104INCIDENTCOUNT':['NR','factt_104_incidentcount',['financial_period_key','route','delay_type','responsible_org_code','incident_category','area'],['responsible_org_code'],'train_operating_company_id'],
-                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key'],
-                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key'] ,
-                    '106TSR':['NR', 'factt_106_tsr',['route','classification','financial_period_key'],['route'],'route' ],
-                    '114NRAVAILABILITY':['NR','factt_114_nravailability_freight',['financial_period_key','train_operating_company_key'] ,['train_operating_company_key'],'train_operating_company_key'],
-                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key'],
-                    '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA' ],
-                    '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key'],
-                    #'206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key']
+                    '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id','financial_period_key'],
+                    '104INCIDENTCOUNT':['NR','factt_104_incidentcount',['financial_period_key','route','delay_type','responsible_org_code','incident_category','area'],['responsible_org_code'],'train_operating_company_id','financial_period_key'],
+                    '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'] ,
+                    '106TSR':['NR', 'factt_106_tsr',['route','classification','financial_period_key'],['route'],'route','financial_period_key' ],
+                    '114NRAVAILABILITY':['NR','factt_114_nravailability_freight',['financial_period_key','train_operating_company_key'] ,['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key','financial_period_key'],
+                    '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA','financial_period_key' ],
+                    '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key','financial_year_key'],
+                    '207GOVTSUPTOC':['TS','factt_207_govtsuptoc',['source','Financial_year_of Publication','Funder_Type','TOC_207_Key','Measure_Name'],['TOC_207_Key'],'toc_ref','Financial_year_of Publication']
                     }
 
     #metadata for DW data
     schema = unique_feed_features[FNum+FName][0]
     table_name = unique_feed_features[FNum+FName][1]
     source_item_id = getSourceItemId(schema,table_name)
-    #pp.pprint(source_item_id)
+    pp.pprint(source_item_id)
 
     MD = GetMetaData(FNum,FName)
     #SD = GetSourceData (FNum,FName,MD)
 
     #check if more than one load in table
-    latestSID = source_item_id[-1]
-    previousSID = source_item_id[-2]
+    if len(source_item_id) == 1:
+    
+        latestSID = source_item_id[-1]
+        previousSID = source_item_id[-1]
 
-    #latestSID = 8947
-    #previousSID = 8047
+    else:
+    
+        latestSID = source_item_id[-1]
+        previousSID = source_item_id[-2]
+
+    latestSID = 9084
+    previousSID = 7996
+    
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
     print(f"The lowest SID - {previousSID}")
@@ -87,30 +96,26 @@ def main():
     print(DWnew)
     #only get data greater than  2018201901
     print("filtering by dates")
-    DWfiltered =    DWnew.loc[(DWnew.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWnew.index.get_level_values('financial_period_key') <= upperdatefilter) ]
-    if previousSID != None:
-        DWoldfiltered = DWold.loc[(DWold.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWold.index.get_level_values('financial_period_key') <= upperdatefilter) ]
+    DWfiltered =    DWnew.loc[(DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
+    DWoldfiltered = DWold.loc[(DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
 
     print("getting individual ranges for PPC")
     DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC') 
     print("getting individual range for YPC")
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC')
     
-    filteredDWPPC = DWPPC[DWPPC.index.get_level_values('financial_period_key')>= upperdatefilter]
+    filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
 
     #absolute variance by subtraction
     print("getting raw variance")
-    if previousSID !=None:
-        variance_raw = DWfiltered.subtract(DWold)
+    variance_raw = DWfiltered.subtract(DWold)
 
     print("getting raw individual variance")
-    if previousSID !=None:
-        variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual')
+    variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual')
     
     #percentage change by subtraction and then division
     print("getting % variance")
-    if previousSID !=None:
-        PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
+    PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
     print("getting * individual variances")
     PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual')
 

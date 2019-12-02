@@ -101,23 +101,42 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     This looks up TOC names against the dimt_train_operating_company table.  If no TOC lookup is needed, the placeholder 'NA' is used to return the original source value unaltered.
     This leaves the main program flow undisturbed
 
+    Parameters:
+    source:             A dataframe holding the source data from the DW
+    key_elements:       A list holding the non-numeric, non-source_item_id, non-toc fields
+    sourcereference:    A string holding the name of the TOC_reference
+    dimtref:            A string holding the name of the relevant dimt name
+
+    Returns:
+    swt:                A dataframe with the TOC names and the TOC_Id removed
+
     """
+    #if dataset has no toc values to lookup, just return the data as is
     if dimtref == 'NA':
         swt = source
     else:
-        TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
-    
-
+        
+        #if dataset is 207_GOVTSUPbyTOC use the specialsed reference table
+        if dimtref == 'toc_ref':
+            TOC_Names = getDWdimension('dbo','dimt_207_toc')
+            dimtlookupname = 'Output_Name'
+        else:
+            TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
+            dimtlookupname = 'train_operating_company_name'
+            
         swt = source
+
+        #force conversion of TOC_Key saved as text into int
+        swt[sourcereference] = swt[sourcereference].apply(pd.to_numeric)
+
         for counter,lookup in enumerate(sourcereference):
             print(f"This is the sourcereference: {sourcereference}\n")
             print(f"This is the lookup value: {lookup}\n")
             print(f"This is the dim reference: {dimtref}\n")
 
-            temp_df =    swt.merge(TOC_Names[[dimtref,'train_operating_company_name']],how='left',left_on=lookup,right_on=int(dimtref))
-        
-            temp_df = temp_df.rename(columns={'train_operating_company_name':lookup + '_toc_name'})
-        
+            temp_df = swt.merge(TOC_Names[[dimtref,dimtlookupname]],how='left',left_on=lookup,right_on=dimtref)
+            temp_df = temp_df.rename(columns={dimtlookupname:lookup + '_toc_name'})
+
             if lookup + '_toc_name' not in key_elements:
                 key_elements.append(lookup + '_toc_name')
             else:
@@ -131,10 +150,10 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
         #remove the unnecessary linking fields from the merge
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
-    
+        swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
 
         swt = setandsortindex(swt,key_elements)
-        #del swt['source_item_id']
+        
 
         #swt.set_index(key_elements,inplace=True)
         #print("These are key elements prior to sorting\n")
@@ -167,7 +186,11 @@ def individualranges(df, key_elements,change_type):
     #remove temporal element
     if 'financial_period_key' in key_elements:
         key_elements.remove('financial_period_key')
-    else:
+    elif 'financial_year_key' in key_elements:
+        key_elements.remove('financial_year_key')
+    elif 'Financial_year_of Publication' in key_elements:
+        key_elements.remove('Financial_year_of Publication')
+    else:    
         pass
 
 
