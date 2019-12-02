@@ -10,8 +10,8 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '206'
-    FName = 'ROLLINGSTOCK'
+    FNum = '105'
+    FName = 'TMILEAGE'
     lowerdatefilter = 2017201801
     upperdatefilter = 2019202005
     
@@ -39,7 +39,7 @@ def main():
                     '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key'],
                     '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA' ],
                     '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key'],
-                    '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key']
+                    #'206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key']
                     }
 
     #metadata for DW data
@@ -52,12 +52,8 @@ def main():
     #SD = GetSourceData (FNum,FName,MD)
 
     #check if more than one load in table
-    if len(source_item_id) > 1:
-        latestSID = source_item_id[-1]
-        previousSID = source_item_id[-2]
-    else:
-        latestSID = source_item_id[-1]
-        previousSID = None
+    latestSID = source_item_id[-1]
+    previousSID = source_item_id[-2]
 
     #latestSID = 8947
     #previousSID = 8047
@@ -78,15 +74,13 @@ def main():
 
     if FNum+FName not in notoclookup:
         print("looking up TOC info")
-        DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
-        if previousSID != None:
-            DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+        DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+        DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
     
     else:
         print("no lookup for TOC needed")
         DWnew = setandsortindex(DWnew,unique_feed_features[FNum+FName][2])
-        if previousSID != None:
-            DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
+        DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
         
     
     print("after failed lookup")
