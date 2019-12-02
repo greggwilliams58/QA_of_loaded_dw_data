@@ -10,9 +10,9 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '119'
-    FName = 'TARGETS'
-    lowerdatefilter = 2018201901
+    FNum = '206'
+    FName = 'ROLLINGSTOCK'
+    lowerdatefilter = 2017201801
     upperdatefilter = 2019202005
     
     #testing for changes
@@ -21,20 +21,25 @@ def main():
     #FName = 'DISAGGPPMCASL'
     
     #lists holding exceptional case information
-    toobigforexport = ['104DELAYS']
-    notoclookup = ['106TSR']
+    toobigforexport = ['104DELAYS','205LENNON']
+    notoclookup = ['106TSR','202SRA']
+    
 
-    #dictionary holding the 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field
+    #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field
     #test here for new repo
 
 
     unique_feed_features = {   
                     '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id'],
+                    '104INCIDENTCOUNT':['NR','factt_104_incidentcount',['financial_period_key','route','delay_type','responsible_org_code','incident_category','area'],['responsible_org_code'],'train_operating_company_id'],
                     '105TMILEAGE':['NR','factt_105_train_mileage',['financial_period_key','train_operating_company_key','operator_type','sector'],['train_operating_company_key'],'train_operating_company_key'],
                     '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key'] ,
                     '106TSR':['NR', 'factt_106_tsr',['route','classification','financial_period_key'],['route'],'route' ],
                     '114NRAVAILABILITY':['NR','factt_114_nravailability_freight',['financial_period_key','train_operating_company_key'] ,['train_operating_company_key'],'train_operating_company_key'],
-                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key']
+                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key'],
+                    '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA' ],
+                    '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key'],
+                    '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key']
                     }
 
     #metadata for DW data
@@ -46,13 +51,19 @@ def main():
     MD = GetMetaData(FNum,FName)
     #SD = GetSourceData (FNum,FName,MD)
 
+    #check if more than one load in table
+    if len(source_item_id) > 1:
+        latestSID = source_item_id[-1]
+        previousSID = source_item_id[-2]
+    else:
+        latestSID = source_item_id[-1]
+        previousSID = None
 
-    latestSID = source_item_id[-1]
-    previousSID = source_item_id[-2]
     #latestSID = 8947
     #previousSID = 8047
     #datasets too large for DW_output
-    
+    print(f"The latest SID = {latestSID}")
+    print(f"The lowest SID - {previousSID}")
     
 
 
@@ -61,15 +72,21 @@ def main():
     print(DWnew)
     print(DWnew.info())
     
+
+
     DWold = getDWdata(schema,table_name,previousSID)
 
     if FNum+FName not in notoclookup:
         print("looking up TOC info")
         DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4]   )
-        DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+        if previousSID != None:
+            DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+    
     else:
+        print("no lookup for TOC needed")
         DWnew = setandsortindex(DWnew,unique_feed_features[FNum+FName][2])
-        DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
+        if previousSID != None:
+            DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
         
     
     print("after failed lookup")
@@ -77,7 +94,8 @@ def main():
     #only get data greater than  2018201901
     print("filtering by dates")
     DWfiltered =    DWnew.loc[(DWnew.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWnew.index.get_level_values('financial_period_key') <= upperdatefilter) ]
-    DWoldfiltered = DWold.loc[(DWold.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWold.index.get_level_values('financial_period_key') <= upperdatefilter) ]
+    if previousSID != None:
+        DWoldfiltered = DWold.loc[(DWold.index.get_level_values('financial_period_key') >= lowerdatefilter) & (DWold.index.get_level_values('financial_period_key') <= upperdatefilter) ]
 
     print("getting individual ranges for PPC")
     DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC') 
@@ -88,15 +106,25 @@ def main():
 
     #absolute variance by subtraction
     print("getting raw variance")
-    variance_raw = DWfiltered.subtract(DWold)
+    if previousSID !=None:
+        variance_raw = DWfiltered.subtract(DWold)
+
     print("getting raw individual variance")
-    variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual')
+    if previousSID !=None:
+        variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual')
     
     #percentage change by subtraction and then division
     print("getting % variance")
-    PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
+    if previousSID !=None:
+        PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
     print("getting * individual variances")
     PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual')
+
+
+
+
+
+
 
     #export various dataframes to excel
     print("exporting to excel")

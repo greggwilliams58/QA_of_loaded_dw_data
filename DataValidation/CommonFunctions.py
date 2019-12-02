@@ -97,43 +97,51 @@ def GetSourceData(feednumber,feedname,metadata):
 
 
 def lookupTOCdata(source,key_elements,sourcereference,dimtref):
+    """
+    This looks up TOC names against the dimt_train_operating_company table.  If no TOC lookup is needed, the placeholder 'NA' is used to return the original source value unaltered.
+    This leaves the main program flow undisturbed
 
-    TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
+    """
+    if dimtref == 'NA':
+        swt = source
+    else:
+        TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
     
 
-    swt = source
-    for counter,lookup in enumerate(sourcereference):
-        #print(f"This is the sourcereference: {sourcereference}\n")
-        #print(f"This is the lookup value: {lookup}\n")
-        #print(f"This is the dim reference: {dimtref}\n")
-        temp_df =    swt.merge(TOC_Names[[dimtref,'train_operating_company_name']],how='left',left_on=lookup,right_on=dimtref)
+        swt = source
+        for counter,lookup in enumerate(sourcereference):
+            print(f"This is the sourcereference: {sourcereference}\n")
+            print(f"This is the lookup value: {lookup}\n")
+            print(f"This is the dim reference: {dimtref}\n")
+
+            temp_df =    swt.merge(TOC_Names[[dimtref,'train_operating_company_name']],how='left',left_on=lookup,right_on=int(dimtref))
         
-        temp_df = temp_df.rename(columns={'train_operating_company_name':lookup + '_toc_name'})
+            temp_df = temp_df.rename(columns={'train_operating_company_name':lookup + '_toc_name'})
         
-        if lookup + '_toc_name' not in key_elements:
-            key_elements.append(lookup + '_toc_name')
-        else:
-            pass
+            if lookup + '_toc_name' not in key_elements:
+                key_elements.append(lookup + '_toc_name')
+            else:
+                pass
 
-        print("This are key elements")
-        print(key_elements)
+            print("This are key elements")
+            print(key_elements)
 
-        print(temp_df.info())
-        swt = temp_df
+            print(temp_df.info())
+            swt = temp_df
 
-    #remove the unnecessary linking fields from the merge
-    swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
+        #remove the unnecessary linking fields from the merge
+        swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
     
 
-    swt = setandsortindex(swt,key_elements)
-    #del swt['source_item_id']
+        swt = setandsortindex(swt,key_elements)
+        #del swt['source_item_id']
 
-    #swt.set_index(key_elements,inplace=True)
-    #print("These are key elements prior to sorting\n")
-    #print(key_elements)
-    #swt = swt.sort_index(axis=0,level=key_elements)
+        #swt.set_index(key_elements,inplace=True)
+        #print("These are key elements prior to sorting\n")
+        #print(key_elements)
+        #swt = swt.sort_index(axis=0,level=key_elements)
     
-    #print(swt.info())
+        #print(swt.info())
 
     return swt
 
@@ -174,7 +182,7 @@ def individualranges(df, key_elements,change_type):
         for group_level,new_series in nonullcoldata.groupby(key_elements):
             print(f"new series here: {group_level}")
             if change_type == 'PPC':
-
+                print(new_series)
                 nonull_series = new_series.pct_change().dropna()
                 filtered_series = set_boundaries(nonull_series)
                 measure_list.append(filtered_series)
