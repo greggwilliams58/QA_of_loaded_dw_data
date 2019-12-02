@@ -119,12 +119,6 @@ def main():
     print("getting * individual variances")
     PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual')
 
-
-
-
-
-
-
     #export various dataframes to excel
     print("exporting to excel")
     with pd.ExcelWriter(f"data validation for {FNum}_{FName}.xlsx",engine='openpyxl') as writer:
