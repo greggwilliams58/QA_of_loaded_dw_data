@@ -11,7 +11,7 @@ def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
     FNum = '224'
-    FName = 'SECTIOND'
+    FName = 'SECTIONI'
     lowerdatefilter = 2019202001
     upperdatefilter = 2019202008
     
@@ -46,7 +46,12 @@ def main():
                     '209NRTINFRA':['NR','factt_209_nrtinfra',['financial_year_key'],['NA'],'NA','financial_year_key'],
                     '224SECTIONA':['TOCs','factt_224_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category','Level_3_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
                     '224SECTIONB':['TOCs','factt_224_sectionb',['financial_period_key','train_operating_company_key','Metric','Contact_method'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
-                    '224SECTIOND':['TOCs','factt_224_sectiond',['financial_period_key','TOC_Key','Booking_Type','Metric_Reference','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key']
+                    '224SECTIOND':['TOCs','factt_224_sectiond',['financial_period_key','TOC_Key','Booking_Type','Metric_Reference','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key'],
+                    '224SECTIONG':['TOCs','factt_224_SectionG',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
+                    '224SECTIONH':['TOCs','factt_224_SectionH',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
+                    '224SECTIONI':['TOCs','factt_224_SectionI',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period']
+                    
+                    
                     }
 
     #metadata for DW data
