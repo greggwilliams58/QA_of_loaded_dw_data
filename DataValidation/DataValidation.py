@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '207'
-    FName = 'GOVTSUPTOC'
-    lowerdatefilter = 20082009
-    upperdatefilter = 20192020
+    FNum = '209'
+    FName = 'NRTINFRA'
+    lowerdatefilter = 19851986
+    upperdatefilter = 20182019
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -22,7 +22,7 @@ def main():
     
     #lists holding exceptional case information
     toobigforexport = ['104DELAYS','205LENNON']
-    notoclookup = ['106TSR','202SRA']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
@@ -40,7 +40,11 @@ def main():
                     '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA','financial_period_key' ],
                     '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
                     '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key','financial_year_key'],
-                    '207GOVTSUPTOC':['TS','factt_207_govtsuptoc',['source','Financial_year_of Publication','Funder_Type','TOC_207_Key','Measure_Name'],['TOC_207_Key'],'toc_ref','Financial_year_of Publication']
+                    '207GOVTSUPTOC':['TS','factt_207_govtsuptoc',['source','Financial_year_of Publication','Funder_Type','TOC_207_Key','Measure_Name'],['TOC_207_Key'],'toc_ref','Financial_year_of Publication'],
+                    '207GOVTSUP':['TS','factt_207_govtsup_pivoted',['financial_year_key','country','funding_category'],['NA'],'NA','financial_year_key'],
+                    '208NRTINVESTMENT':['ONS','factt_208_NRTInvestment_FY',['financial_year_key','train_operating_company_key','category','measure_name'],['train_operating_company_key'],'train_operating_company_key','financial_year_key']
+                    
+                    
                     }
 
     #metadata for DW data
@@ -63,8 +67,8 @@ def main():
         latestSID = source_item_id[-1]
         previousSID = source_item_id[-2]
 
-    latestSID = 9084
-    previousSID = 7996
+    #latestSID = 9084
+    #previousSID = 7996
     
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
@@ -96,6 +100,7 @@ def main():
     print(DWnew)
     #only get data greater than  2018201901
     print("filtering by dates")
+    
     DWfiltered =    DWnew.loc[(DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
     DWoldfiltered = DWold.loc[(DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
 

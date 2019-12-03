@@ -52,7 +52,7 @@ def GetSourceData(feednumber,feedname,metadata):
     rootOfSourceData = '//orrdwfs1.file.core.windows.net/feeds/LIVE/Process/'
     
     #get containing folder
-    foldersToSearch = ['ATOC','DFT','LUL','NR','ONS','ORR','TOCs']
+    foldersToSearch = ['ATOC','DFT','LUL','NR','ONS','ORR','TOCs','TS']
     for folder in foldersToSearch:
         if os.path.isdir(rootOfSourceData + folder + '/' + feednumber):
             feedfolder = rootOfSourceData + folder + '/' + feednumber
@@ -114,6 +114,8 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     #if dataset has no toc values to lookup, just return the data as is
     if dimtref == 'NA':
         swt = source
+        print("This are key elements with no lookup")
+        print(key_elements)
     else:
         
         #if dataset is 207_GOVTSUPbyTOC use the specialsed reference table
@@ -136,46 +138,45 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
             temp_df = swt.merge(TOC_Names[[dimtref,dimtlookupname]],how='left',left_on=lookup,right_on=dimtref)
             temp_df = temp_df.rename(columns={dimtlookupname:lookup + '_toc_name'})
+            temp_df = temp_df.rename(columns={lookup + '_toc_name': 'toc_name'})
 
-            if lookup + '_toc_name' not in key_elements:
-                key_elements.append(lookup + '_toc_name')
+            if 'toc_name' not in key_elements:
+                key_elements.append('toc_name')
             else:
                 pass
 
-            print("This are key elements")
-            print(key_elements)
-
-            print(temp_df.info())
             swt = temp_df
 
         #remove the unnecessary linking fields from the merge
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
 
-        swt = setandsortindex(swt,key_elements)
+        if 'train_operating_company_key' in key_elements:
+            key_elements.remove('train_operating_company_key')
+
+        print(swt.info())
+        
+        print(key_elements)
         
 
-        #swt.set_index(key_elements,inplace=True)
-        #print("These are key elements prior to sorting\n")
-        #print(key_elements)
-        #swt = swt.sort_index(axis=0,level=key_elements)
-    
-        #print(swt.info())
+        swt = setandsortindex(swt,key_elements)
 
     return swt
 
+
 def setandsortindex(source,key_elements):
     del source['source_item_id']
-    
+
+
     source.set_index(key_elements,inplace=True)
-    print("These are key elements prior to sorting\n")
-    print(key_elements)
+
     source = source.sort_index(axis=0,level=key_elements)
     
-    print(source.info())
+ 
 
     return source
     
+
 def individualranges(df, key_elements,change_type):
     """
     This deduces the number of key/levels in the full dataset and converts each column and key combination into a series
