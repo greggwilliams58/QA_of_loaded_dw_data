@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '209'
-    FName = 'NRTINFRA'
-    lowerdatefilter = 19851986
-    upperdatefilter = 20182019
+    FNum = '224'
+    FName = 'SECTIONA'
+    lowerdatefilter = 2019202001
+    upperdatefilter = 2019202008
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -42,8 +42,9 @@ def main():
                     '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key','financial_year_key'],
                     '207GOVTSUPTOC':['TS','factt_207_govtsuptoc',['source','Financial_year_of Publication','Funder_Type','TOC_207_Key','Measure_Name'],['TOC_207_Key'],'toc_ref','Financial_year_of Publication'],
                     '207GOVTSUP':['TS','factt_207_govtsup_pivoted',['financial_year_key','country','funding_category'],['NA'],'NA','financial_year_key'],
-                    '208NRTINVESTMENT':['ONS','factt_208_NRTInvestment_FY',['financial_year_key','train_operating_company_key','category','measure_name'],['train_operating_company_key'],'train_operating_company_key','financial_year_key']
-                    
+                    '208NRTINVESTMENT':['ONS','factt_208_NRTInvestment_FY',['financial_year_key','train_operating_company_key','category','measure_name'],['train_operating_company_key'],'train_operating_company_key','financial_year_key'],
+                    '209NRTINFRA':['NR','factt_209_nrtinfra',['financial_year_key'],['NA'],'NA','financial_year_key'],
+                    '224SECTIONA':['TOCs','factt_224_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category','Level_3_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
                     
                     }
 
@@ -51,6 +52,8 @@ def main():
     schema = unique_feed_features[FNum+FName][0]
     table_name = unique_feed_features[FNum+FName][1]
     source_item_id = getSourceItemId(schema,table_name)
+    source_item_id.sort()
+    
     pp.pprint(source_item_id)
 
     MD = GetMetaData(FNum,FName)
@@ -96,7 +99,7 @@ def main():
         DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
         
     
-    print("after failed lookup")
+
     print(DWnew)
     #only get data greater than  2018201901
     print("filtering by dates")
@@ -105,9 +108,9 @@ def main():
     DWoldfiltered = DWold.loc[(DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
 
     print("getting individual ranges for PPC")
-    DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC') 
+    DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC',FNum) 
     print("getting individual range for YPC")
-    DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC')
+    DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC',FNum)
     
     filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
 
@@ -116,13 +119,13 @@ def main():
     variance_raw = DWfiltered.subtract(DWold)
 
     print("getting raw individual variance")
-    variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual')
+    variance = individualranges(variance_raw, unique_feed_features[FNum+FName][2],'individual',FNum)
     
     #percentage change by subtraction and then division
     print("getting % variance")
     PCvariance_raw = (( DWfiltered - DWoldfiltered)/ DWold)*100
     print("getting * individual variances")
-    PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual')
+    PCvariance = individualranges(PCvariance_raw,unique_feed_features[FNum+FName][2],'individual',FNum)
 
     #export various dataframes to excel
     print("exporting to excel")

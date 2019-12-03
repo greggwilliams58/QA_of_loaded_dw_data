@@ -142,6 +142,9 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
             if 'toc_name' not in key_elements:
                 key_elements.append('toc_name')
+                #move toc to second place
+                key_elements.insert(1,key_elements.pop())
+                print(key_elements)
             else:
                 pass
 
@@ -177,28 +180,39 @@ def setandsortindex(source,key_elements):
     return source
     
 
-def individualranges(df, key_elements,change_type):
+def individualranges(df, key_elements,change_type,feed_number):
     """
     This deduces the number of key/levels in the full dataset and converts each column and key combination into a series
     This series has 0 values and NULL removed
     The series is then recombined into a dataframe and exported
 
+
+
     """
-    #remove temporal element
+    #remove temporal element if not 209_Infrastructure
     if 'financial_period_key' in key_elements:
         key_elements.remove('financial_period_key')
-    elif 'financial_year_key' in key_elements:
+    elif 'financial_year_key' in key_elements and feed_number != '209':
         key_elements.remove('financial_year_key')
     elif 'Financial_year_of Publication' in key_elements:
         key_elements.remove('Financial_year_of Publication')
     else:    
         pass
+    
+    #this relates to the 224_sectiona complaints dataset
+    if 'Complaint_category_id' in key_elements:
+        key_elements.remove('Complaint_category_id')
+
+    if 'sectiona_id' in key_elements:
+        key_elements.remove('sectiona_id')
+    
 
 
     number_of_index_levels = df.index.nlevels
     
     measure_list = []
     print("Looping through ranges of individuals")
+    print(f"within individual ranges key elements: {key_elements}")
     for (colname,coldata) in df.iteritems():
         nozerocoldata = coldata.replace(0,np.NaN)
         nonullcoldata = nozerocoldata.dropna()

@@ -59,6 +59,15 @@ def getDWdata(schema_name,table_name,source_item_id):
     query = select([example_table]).where(example_table.c.source_item_id == source_item_id)
 
     df = pd.read_sql(query, conn)
+
+    #delete unnecessary columns
+    #this related to 224_sectiona
+    if 'sectiona_id' in df.columns:
+        del df['sectiona_id']
+
+    if 'Complaint_category_id' in df.columns:
+        del df['Complaint_category_id']
+
     return df
 
 
