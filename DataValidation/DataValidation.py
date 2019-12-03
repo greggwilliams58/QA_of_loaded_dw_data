@@ -11,7 +11,7 @@ def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
     FNum = '224'
-    FName = 'SECTIONA'
+    FName = 'SECTIOND'
     lowerdatefilter = 2019202001
     upperdatefilter = 2019202008
     
@@ -44,8 +44,9 @@ def main():
                     '207GOVTSUP':['TS','factt_207_govtsup_pivoted',['financial_year_key','country','funding_category'],['NA'],'NA','financial_year_key'],
                     '208NRTINVESTMENT':['ONS','factt_208_NRTInvestment_FY',['financial_year_key','train_operating_company_key','category','measure_name'],['train_operating_company_key'],'train_operating_company_key','financial_year_key'],
                     '209NRTINFRA':['NR','factt_209_nrtinfra',['financial_year_key'],['NA'],'NA','financial_year_key'],
-                    '224SECTIONA':['TOCs','factt_224_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category','Level_3_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
-                    
+                    '224SECTIONA':['TOCs','factt_224_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category','Level_3_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '224SECTIONB':['TOCs','factt_224_sectionb',['financial_period_key','train_operating_company_key','Metric','Contact_method'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '224SECTIOND':['TOCs','factt_224_sectiond',['financial_period_key','TOC_Key','Booking_Type','Metric_Reference','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key']
                     }
 
     #metadata for DW data
