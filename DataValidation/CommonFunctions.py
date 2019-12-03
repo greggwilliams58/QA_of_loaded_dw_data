@@ -22,16 +22,18 @@ def GetMetaData(feednumber, feedname):
     Returns:
     An ordered dictionary holding the metadata info for later use
     """
+    if feedname not in ['APPEALS','COMPLAINTS']:
+        rootOfMetaData = '//orrdwfs1.file.core.windows.net/feeds/LIVE/Metadata/'
     
-    rootOfMetaData = '//orrdwfs1.file.core.windows.net/feeds/LIVE/Metadata/'
-    
-    filepathToMetaData = rootOfMetaData + feednumber + '/' + feedname + '/' + 'Metadata_' + feednumber + '_' + feedname + '.xls'
+        filepathToMetaData = rootOfMetaData + feednumber + '/' + feedname + '/' + 'Metadata_' + feednumber + '_' + feedname + '.xls'
    
-
-    metadata = pd.read_excel(filepathToMetaData,header=1,sheet_name = ['Feed','Feed Parts','Feed Sub Parts','Feed Sub Part Area','Feed Sub Part Area Groupby','Feed Sub Part Area Columns'])
-    #pp.pprint(metadata)
-    #pp.pprint(metadata['Feed Sub Parts']['Feed Sub Part Code'])
-    return metadata
+    
+        metadata = pd.read_excel(filepathToMetaData,header=1,sheet_name = ['Feed','Feed Parts','Feed Sub Parts','Feed Sub Part Area','Feed Sub Part Area Groupby','Feed Sub Part Area Columns'])
+        #pp.pprint(metadata)
+        #pp.pprint(metadata['Feed Sub Parts']['Feed Sub Part Code'])
+        return metadata
+    else:
+        pass
 
 
 def GetSourceData(feednumber,feedname,metadata):
@@ -168,8 +170,11 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
 
 def setandsortindex(source,key_elements):
-    del source['source_item_id']
+    if 'source_item_id' in source:
+        del source['source_item_id']
 
+    if 'load_id' in source:
+        del source['load_id']
 
     source.set_index(key_elements,inplace=True)
 

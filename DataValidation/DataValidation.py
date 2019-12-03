@@ -11,9 +11,9 @@ def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
     FNum = '224'
-    FName = 'SECTIONI'
-    lowerdatefilter = 2019202001
-    upperdatefilter = 2019202008
+    FName = 'APPEALS'
+    lowerdatefilter = 20191
+    upperdatefilter = 20192
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -22,7 +22,7 @@ def main():
     
     #lists holding exceptional case information
     toobigforexport = ['104DELAYS','205LENNON']
-    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
@@ -49,9 +49,9 @@ def main():
                     '224SECTIOND':['TOCs','factt_224_sectiond',['financial_period_key','TOC_Key','Booking_Type','Metric_Reference','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key'],
                     '224SECTIONG':['TOCs','factt_224_SectionG',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
                     '224SECTIONH':['TOCs','factt_224_SectionH',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
-                    '224SECTIONI':['TOCs','factt_224_SectionI',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period']
-                    
-                    
+                    '224SECTIONI':['TOCs','factt_224_SectionI',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
+                    '224SECTIONDRDG':['TOCs','factt_224_SectiondRDG',['Financial_period_key','Financial_year_key','Datasource','Train_Operating_Company_key','Measure'],['Train_Operating_Company_key'],'train_operating_company_key','Financial_period_key'],
+                    '224APPEALS':['NETL','factt_224_LTW_TF_Appeals_Closed_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type'],['NA'],'NA','financial_quarter']
                     }
 
     #metadata for DW data
@@ -62,7 +62,9 @@ def main():
     
     pp.pprint(source_item_id)
 
-    MD = GetMetaData(FNum,FName)
+    if schema != 'NETL':
+        MD = GetMetaData(FNum,FName)
+
     #SD = GetSourceData (FNum,FName,MD)
 
     #check if more than one load in table

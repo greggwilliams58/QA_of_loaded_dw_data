@@ -56,7 +56,10 @@ def getDWdata(schema_name,table_name,source_item_id):
     example_table = Table(table_name, metadata,autoload=True, autoload_with=engine, schema=schema_name)
 
     #get raw table data, filtered by source_item_id
-    query = select([example_table]).where(example_table.c.source_item_id == source_item_id)
+    if schema_name == 'NETL':
+        query = select([example_table]).where(example_table.c.load_id == source_item_id)
+    else:
+        query = select([example_table]).where(example_table.c.source_item_id == source_item_id)
 
     df = pd.read_sql(query, conn)
 
@@ -101,8 +104,6 @@ def getSourceItemId(schema_name,table_name):
     sid = sid.select_from(table_name.join([ORR_DW].[dbo].[uvw_latest_feed_part_version])  )
 
     """    
-    
-    
     engine = sqlalchemy.create_engine('mssql+pyodbc://AZORRDWSC01/ORR_DW?driver=SQL+Server+Native+Client+11.0?trusted_connection=yes')
     conn = engine.connect()
 
@@ -112,17 +113,24 @@ def getSourceItemId(schema_name,table_name):
     
     #feeds_table = Table('uvw_latest_feed_part_version',metadata,autoload=True,autoload_with_engine=engine, schema='dbo')
 
-    sid = select([example_table.c.source_item_id.distinct()])
+    #standard path for ETL data
+    if schema_name != 'NETL': 
+        sid = select([example_table.c.source_item_id.distinct()])
+        dfSID = pd.read_sql(sid,conn)
+        listSID = dfSID['source_item_id'].tolist()
 
+    #extract load_is from NETL table itself
+    else:
+        sid = select([example_table.c.load_id.distinct()])
+        dfSID = pd.read_sql(sid,conn)
+        listSID = dfSID['load_id'].tolist()
+    
+        #dfSID = pd.read_sql(sid,conn)
+    #listSID = dfSID['source_item_id'].tolist()
+    
     # to add join here
     #full_data = select([example_table, sid])
 
     #full_data = full_data.select_from(
     #    example_table.join(sid,example_table.source_item_id = sid.source_item_id))
-
-    
-    dfSID = pd.read_sql(sid,conn)
-    
-    listSID = dfSID['source_item_id'].tolist()
-
     return listSID
