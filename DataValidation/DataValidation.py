@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '224'
-    FName = 'APPEALS'
-    lowerdatefilter = 20191
-    upperdatefilter = 20192
+    FNum = '119'
+    FName = 'TARGETS'
+    lowerdatefilter = 2019202001
+    upperdatefilter = 2019202013
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -26,7 +26,7 @@ def main():
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
-    #test here for new repo
+    #test here for new repo 
 
 
     unique_feed_features = {   
@@ -36,7 +36,7 @@ def main():
                     '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'] ,
                     '106TSR':['NR', 'factt_106_tsr',['route','classification','financial_period_key'],['route'],'route','financial_period_key' ],
                     '114NRAVAILABILITY':['NR','factt_114_nravailability_freight',['financial_period_key','train_operating_company_key'] ,['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
-                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key','financial_period_key'],
+                    '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key','Financial_period_key'],
                     '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA','financial_period_key' ],
                     '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
                     '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key','financial_year_key'],

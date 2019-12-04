@@ -211,6 +211,12 @@ def individualranges(df, key_elements,change_type,feed_number):
     if 'sectiona_id' in key_elements:
         key_elements.remove('sectiona_id')
     
+    #this relates to the 119 targets file
+    if 'Target_Group' in key_elements:
+        key_elements.remove('Target_Group')
+
+    if 'Target_Purpose' in key_elements:
+        key_elements.remove('Target_Purpose')
 
 
     number_of_index_levels = df.index.nlevels
