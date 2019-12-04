@@ -130,8 +130,11 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
             
         swt = source
 
-        #force conversion of TOC_Key saved as text into int
-        swt[sourcereference] = swt[sourcereference].apply(pd.to_numeric)
+        #force conversion of TOC_Key saved as text into int, if not using the toc_key instead
+        
+        print(f"the sourcereference is {sourcereference}")
+        if sourcereference == 'train_operating_company_id':
+            swt[sourcereference] = swt[sourcereference].apply(pd.to_numeric)
 
         for counter,lookup in enumerate(sourcereference):
             print(f"This is the sourcereference: {sourcereference}\n")

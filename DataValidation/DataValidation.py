@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '119'
-    FName = 'TARGETS'
-    lowerdatefilter = 2019202001
-    upperdatefilter = 2019202013
+    FNum = '225'
+    FName = 'FREIGHTLIFTED'
+    lowerdatefilter = 19991
+    upperdatefilter = 20192
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -51,7 +51,9 @@ def main():
                     '224SECTIONH':['TOCs','factt_224_SectionH',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
                     '224SECTIONI':['TOCs','factt_224_SectionI',['Financial_Period','TOC_key','Category_Name','Measure_Name'],['TOC_key'],'train_operating_company_key','Financial_Period'],
                     '224SECTIONDRDG':['TOCs','factt_224_SectiondRDG',['Financial_period_key','Financial_year_key','Datasource','Train_Operating_Company_key','Measure'],['Train_Operating_Company_key'],'train_operating_company_key','Financial_period_key'],
-                    '224APPEALS':['NETL','factt_224_LTW_TF_Appeals_Closed_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type'],['NA'],'NA','financial_quarter']
+                    '224APPEALS':['NETL','factt_224_LTW_TF_Appeals_Closed_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type'],['NA'],'NA','financial_quarter'],
+                    #'224COMPLAINTS':['NETL','factt_224_LTW_TF_Complaints_Received_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type','ORR_Complaint_Category','NRPS Complaint Category'],['NA'],'NA','financial_quarter']
+                    '225FREIGHTLIFTED':['ORR','factt_225_freightlifted',['financial_quarter_key','Year','train_operating_company_id'],['train_operating_company_id'],'train_operating_company_id','financial_quarter_key']
                     }
 
     #metadata for DW data
