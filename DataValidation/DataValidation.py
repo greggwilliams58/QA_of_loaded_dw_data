@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '226'
-    FName = 'FREIGHTMOVED'
-    lowerdatefilter = 2019202007
-    upperdatefilter = 2019202008
+    FNum = '311'
+    FName = 'ASR'
+    lowerdatefilter = 20062007
+    upperdatefilter = 2018201913
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -22,7 +22,7 @@ def main():
     
     #lists holding exceptional case information
     toobigforexport = ['104DELAYS','205LENNON']
-    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
@@ -54,8 +54,9 @@ def main():
                     '224APPEALS':['NETL','factt_224_LTW_TF_Appeals_Closed_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type'],['NA'],'NA','financial_quarter'],
                     #'224COMPLAINTS':['NETL','factt_224_LTW_TF_Complaints_Received_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type','ORR_Complaint_Category','NRPS Complaint Category'],['NA'],'NA','financial_quarter']
                     '225FREIGHTLIFTED':['ORR','factt_225_freightlifted',['financial_quarter_key','Year','train_operating_company_id'],['train_operating_company_id'],'train_operating_company_id','financial_quarter_key'],
-                    '226FREIGHTMOVED':['NR','factt_226_freightmoved',['financial_period_key','period_number','week_number','train_operating_company_key','service_group' ,'commodity_name' ,'service_code','service_code_chargeable','electric','electricity_supply'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
-      
+                    '226FREIGHTMOVED':['NR','factt_226_freightmoved',['financial_period_key','period_number','week_number','train_operating_company_key','service_group' ,'commodity_name' ,'service_code','service_code_chargeable','electric','electricity_supply'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    #303_Delay_targets not loaded since 2018201913
+                    '311ASR':['RSSB','factt_311_ASR',['Data_Supplier','Table','Date_key','Injury','Category'],['NA'],'NA','Date_key']
                     
                     }
 
@@ -67,7 +68,7 @@ def main():
     
     pp.pprint(source_item_id)
 
-    if schema != 'NETL':
+    if schema not in ['NETL','RSSB']:
         MD = GetMetaData(FNum,FName)
 
     #SD = GetSourceData (FNum,FName,MD)
@@ -83,8 +84,8 @@ def main():
         latestSID = source_item_id[-1]
         previousSID = source_item_id[-2]
 
-    #latestSID = 9084
-    #previousSID = 7996
+    latestSID = 8997
+    previousSID = 7937
     
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
@@ -125,7 +126,7 @@ def main():
     print("getting individual range for YPC")
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC',FNum)
     
-    #filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
+    filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
 
     #absolute variance by subtraction
     print("getting raw variance")

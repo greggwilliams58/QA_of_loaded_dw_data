@@ -67,14 +67,20 @@ def getDWdata(schema_name,table_name,source_item_id):
     #this related to 224_sectiona
     if 'sectiona_id' in df.columns:
         del df['sectiona_id']
-
+    
+    #this related to 224_sectiona
     if 'sectionb_id' in df.columns:
         del df['sectionb_id']
 
     if 'Complaint_category_id' in df.columns:
         del df['Complaint_category_id']
 
+    #this related to 311_ASR
+    if 'ASR_ID' in df.columns:
+        del df['ASR_ID']
 
+    if 'Scope' in df.columns:
+        del df['Scope']
 
     return df
 
