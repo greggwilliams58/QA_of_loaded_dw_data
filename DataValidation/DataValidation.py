@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '225'
-    FName = 'FREIGHTLIFTED'
-    lowerdatefilter = 19991
-    upperdatefilter = 20192
+    FNum = '226'
+    FName = 'FREIGHTMOVED'
+    lowerdatefilter = 2019202007
+    upperdatefilter = 2019202008
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -53,7 +53,10 @@ def main():
                     '224SECTIONDRDG':['TOCs','factt_224_SectiondRDG',['Financial_period_key','Financial_year_key','Datasource','Train_Operating_Company_key','Measure'],['Train_Operating_Company_key'],'train_operating_company_key','Financial_period_key'],
                     '224APPEALS':['NETL','factt_224_LTW_TF_Appeals_Closed_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type'],['NA'],'NA','financial_quarter'],
                     #'224COMPLAINTS':['NETL','factt_224_LTW_TF_Complaints_Received_Stats_Release',['financial_quarter','publication_status','Organisation','Operator','Franchise type','ORR_Complaint_Category','NRPS Complaint Category'],['NA'],'NA','financial_quarter']
-                    '225FREIGHTLIFTED':['ORR','factt_225_freightlifted',['financial_quarter_key','Year','train_operating_company_id'],['train_operating_company_id'],'train_operating_company_id','financial_quarter_key']
+                    '225FREIGHTLIFTED':['ORR','factt_225_freightlifted',['financial_quarter_key','Year','train_operating_company_id'],['train_operating_company_id'],'train_operating_company_id','financial_quarter_key'],
+                    '226FREIGHTMOVED':['NR','factt_226_freightmoved',['financial_period_key','period_number','week_number','train_operating_company_key','service_group' ,'commodity_name' ,'service_code','service_code_chargeable','electric','electricity_supply'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
+      
+                    
                     }
 
     #metadata for DW data
@@ -114,7 +117,7 @@ def main():
     #only get data greater than  2018201901
     print("filtering by dates")
     
-    DWfiltered =    DWnew.loc[(DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
+    DWfiltered = DWnew.loc[(DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
     DWoldfiltered = DWold.loc[(DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
 
     print("getting individual ranges for PPC")
@@ -122,7 +125,7 @@ def main():
     print("getting individual range for YPC")
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC',FNum)
     
-    filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
+    #filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
 
     #absolute variance by subtraction
     print("getting raw variance")
