@@ -84,8 +84,8 @@ def main():
         latestSID = source_item_id[-1]
         previousSID = source_item_id[-2]
 
-    latestSID = 8997
-    previousSID = 7937
+    latestSID = 8995
+    previousSID = 7882
     
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
