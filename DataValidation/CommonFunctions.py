@@ -204,6 +204,14 @@ def individualranges(df, key_elements,change_type,feed_number):
         key_elements.remove('financial_year_key')
     elif 'Financial_year_of Publication' in key_elements:
         key_elements.remove('Financial_year_of Publication')
+    elif 'Financial_Period_key' in key_elements and feed_number == '312':
+        key_elements.remove('Financial_Period_key')
+    elif feed_number == '321':
+        key_elements.remove('Date_key_with_Quarters')
+
+    elif feed_number == '329':
+        key_elements.remove('Time_Period_Key')
+        
     else:    
         pass
     
@@ -221,20 +229,21 @@ def individualranges(df, key_elements,change_type,feed_number):
     if 'Target_Purpose' in key_elements:
         key_elements.remove('Target_Purpose')
 
-
     number_of_index_levels = df.index.nlevels
     
     measure_list = []
     print("Looping through ranges of individuals")
     print(f"within individual ranges key elements: {key_elements}")
+    print(df.info())
     for (colname,coldata) in df.iteritems():
         nozerocoldata = coldata.replace(0,np.NaN)
         nonullcoldata = nozerocoldata.dropna()
-
+        #print("This is no nan data")
+        #print(nonullcoldata)
         for group_level,new_series in nonullcoldata.groupby(key_elements):
             print(f"new series here: {group_level}")
             if change_type == 'PPC':
-                print(new_series)
+
                 nonull_series = new_series.pct_change().dropna()
                 filtered_series = set_boundaries(nonull_series)
                 measure_list.append(filtered_series)

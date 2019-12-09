@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '311'
-    FName = 'ASR'
-    lowerdatefilter = 20062007
-    upperdatefilter = 2018201913
+    FNum = '329'
+    FName = 'RenewalsVols'
+    lowerdatefilter = 2018201901
+    upperdatefilter = 2019202008
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -22,7 +22,7 @@ def main():
     
     #lists holding exceptional case information
     toobigforexport = ['104DELAYS','205LENNON']
-    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
@@ -56,8 +56,14 @@ def main():
                     '225FREIGHTLIFTED':['ORR','factt_225_freightlifted',['financial_quarter_key','Year','train_operating_company_id'],['train_operating_company_id'],'train_operating_company_id','financial_quarter_key'],
                     '226FREIGHTMOVED':['NR','factt_226_freightmoved',['financial_period_key','period_number','week_number','train_operating_company_key','service_group' ,'commodity_name' ,'service_code','service_code_chargeable','electric','electricity_supply'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
                     #303_Delay_targets not loaded since 2018201913
-                    '311ASR':['RSSB','factt_311_ASR',['Data_Supplier','Table','Date_key','Injury','Category'],['NA'],'NA','Date_key']
-                    
+                    '311ASR':['RSSB','factt_311_ASR',['Data_Supplier','Table','Date_key','Injury','Category'],['NA'],'NA','Date_key'],
+                    #'312Top50incidents':['NR','factt_312_Top_50_incidents',['Financial_Period_key','Incident_Period_key' ,'Rank','Incident_Date','Incident_Number' ,'Incident_Category' ,'Incident_Description','Incident_Location','Network_Rail_Route','Responsible_Organisation','Attribution_Status'],['NA'],'NA','Financial_Period_key'],
+                    '313DISAGGPPMCASL':['NR','factt_313_DISAGGPPMCaSL',['financial_period','train_operating_company_key','Financial Year & Period','Financial Year','Financial Period Number','TOC Sector','Operator Name','Sector','v_ORR sub-operator PPM split'],['train_operating_company_key'],'train_operating_company_key','financial_period'],
+                    #'321OH':['ORR','factt_321_OH',['Data_Supplier','Scope','Operator','Date_key_with_Quarters','Disease_Type','Category'],['NA'],'NA','Date_key_with_Quarters']
+                    '324AverageLateness':['NR','factt_324_Average_Lateness',['financial_period_key','TOC_key'],['TOC_key'],'train_operating_company_key','financial_period_key'],
+                    '326FDMbySFC':['NR','factt_326_Freight_delivery_matrix',['financial_period_key','SFC'],['NA'],'NA','financial_period_key'],
+                    '327ReliabilityandSustainability':['NR','factt_327_ReliabilityAndSustainability',['Financial_Period','route_id','Measure','Snapshot','Normalised','Time_Period','Type'],['NA'],'NA','Financial_Period'],
+                    #'329RenewalsVols':['NR','factt_329_RenewalVolumes',['Time_Period_Key','Time_Period_Flag','Route_Name','Measure_Name','Measure_Type','Measure_sub_group','Measure_group'],['NA'],'NA','Time_Period_Key']
                     }
 
     #metadata for DW data
@@ -84,8 +90,8 @@ def main():
         latestSID = source_item_id[-1]
         previousSID = source_item_id[-2]
 
-    latestSID = 8995
-    previousSID = 7882
+    #latestSID = 8995
+    #previousSID = 7882
     
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
@@ -116,17 +122,36 @@ def main():
 
     print(DWnew)
     #only get data greater than  2018201901
-    print("filtering by dates")
     
-    DWfiltered = DWnew.loc[(DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
-    DWoldfiltered = DWold.loc[(DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
+    
+    try:
+        print(f"filtering latest load by date values {lowerdatefilter} and {upperdatefilter}")
+        DWfiltered = DWnew.loc[(DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWnew.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
+    except KeyError:
+        print(f"dates supplied {lowerdatefilter} and {upperdatefilter} not in data\n")
+        DWfiltered = DWnew
+    
+    try:
+        print(f"filtering previous load by date values {lowerdatefilter} and {upperdatefilter}")
+        DWoldfiltered = DWold.loc[(DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWold.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
+    except KeyError:
+        print(f"dates supplied {lowerdatefilter} and {upperdatefilter} not in data\n")
+        DWoldfiltered = DWold
+
 
     print("getting individual ranges for PPC")
     DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC',FNum) 
+  
+    
     print("getting individual range for YPC")
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC',FNum)
     
-    filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
+    try:
+        print(f"filtering for latest date only on {upperdatefilter}")
+        filteredDWPPC = DWPPC[DWPPC.index.get_level_values(unique_feed_features[FNum+FName][5])>= upperdatefilter]
+    except KeyError:
+        print(f"dates supplied {upperdatefilter} not in data\n")
+        filteredDWPCC = DWPPC
 
     #absolute variance by subtraction
     print("getting raw variance")
