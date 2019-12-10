@@ -10,8 +10,8 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '332'
-    FName = 'PPMCaSLFailure'
+    FNum = '104'
+    FName = 'DELAYS'
     lowerdatefilter = 2019202001
     upperdatefilter = 2019202008
     
@@ -65,7 +65,7 @@ def main():
                     '327ReliabilityandSustainability':['NR','factt_327_ReliabilityAndSustainability',['Financial_Period','route_id','Measure','Snapshot','Normalised','Time_Period','Type'],['NA'],'NA','Financial_Period'],
                     #'329RenewalsVols':['NR','factt_329_RenewalVolumes',['Time_Period_Key','Time_Period_Flag','Route_Name','Measure_Name','Measure_Type','Measure_sub_group','Measure_group'],['NA'],'NA','Time_Period_Key'],
                     '330MaintenanceVols':['NR','factt_330_Maintenance_Volumes',['Financial_Quarter_Key','Financial_Quarter_Name','Financial_Year_Key','Route_code','Route_name','Measure_Code','Measure_Description','Published_UOM','Ellipse_UOM'],['NA'],'NA','Financial_Quarter_Key'],
-                    '332PPMCaSLFailure':['NR','factt_332_PPM_CASL_Failures',['Financial_Period','National_or_Route_Data','TOC_Victim_Key','Sector_Victim','Sector_Victim_key','TOC_Perpetrator_Key','Sector_Perperator','Sector_Perperator_key','Delay_Type','Incident_Category','Route_Name','Measure_Name'],['TOC_Victim_Key','TOC_Perpetrator_Key'],'train_operating_company_key']
+                    '332PPMCaSLFailure':['NR','factt_332_PPM_CASL_Failures',['Financial_Period','National_or_Route_Data','TOC_Victim_Key','Sector_Victim','Sector_Victim_key','TOC_Perpetrator_Key','Sector_Perperator','Sector_Perperator_key','Delay_Type','Incident_Category','Route_Name','Measure_Name'],['TOC_Victim_Key','TOC_Perpetrator_Key'],'train_operating_company_key','Financial_Period']
                     }
 
     #metadata for DW data
@@ -113,12 +113,12 @@ def main():
     if FNum+FName not in notoclookup:
         print("looking up TOC info")
         DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
-        #DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
+        DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
     
     else:
         print("no lookup for TOC needed")
         DWnew = setandsortindex(DWnew,unique_feed_features[FNum+FName][2])
-       # DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
+        DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
         
     
 

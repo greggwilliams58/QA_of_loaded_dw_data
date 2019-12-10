@@ -137,9 +137,9 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
             swt[sourcereference] = swt[sourcereference].apply(pd.to_numeric)
 
         for counter,lookup in enumerate(sourcereference):
-            print(f"This is the sourcereference: {sourcereference}\n")
-            print(f"This is the lookup value: {lookup}\n")
-            print(f"This is the dim reference: {dimtref}\n")
+            #print(f"This is the sourcereference: {sourcereference}\n")
+            #print(f"This is the lookup value: {lookup}\n")
+            #print(f"This is the dim reference: {dimtref}\n")
 
             temp_df = swt.merge(TOC_Names[[dimtref,dimtlookupname]],how='left',left_on=lookup,right_on=dimtref)
             temp_df = temp_df.rename(columns={dimtlookupname:lookup + '_toc_name'})
@@ -149,34 +149,43 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
                 key_elements.append(lookup + '_toc_name')
                 #move toc to second place
                 key_elements.insert(1,key_elements.pop())
-                print(key_elements)
+                #print(key_elements)
             else:
                 pass
-
+            #print("This is temp_data")
+            #print(temp_df.info())
             swt = temp_df
+
+            #print("This is swt_data")
+            #print(swt.info())
 
         #remove the unnecessary linking fields from the merge
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
-        swt = swt.loc[:,~swt.columns.str.startswith('TOC_Victim_Key')]
-        swt = swt.loc[:,~swt.columns.str.startswith('TOC_Perpetrator_Key')]
+        
+        #this removes keys from 332_PPM_CaSL failures
+        if 'TOC_Victim_Key' in swt.columns:
+            swt = swt.drop(['TOC_Victim_Key'],axis=1)
 
+        if 'TOC_Perpetrator_Key' in swt.columns:
+            swt = swt.drop(['TOC_Perpetrator_Key'],axis=1)
+
+
+        
+
+        
+        #this removes keys from the key elements list
         if 'train_operating_company_key' in key_elements:
             key_elements.remove('train_operating_company_key')
-        if 'Sector_Victim_key' in key_elements:
+        #this relates to 332_PPM_CaSLFailures
+        if 'TOC_Victim_Key' in key_elements:
             key_elements.remove('TOC_Victim_Key')
-        if 'Sector_Perpetrator_key' in key_elements:
+        if 'TOC_Perpetrator_Key' in key_elements:
             key_elements.remove('TOC_Perpetrator_Key')
             
-
-    #print("This is the swt info")
-    #print(swt.info())
-        
-    #print("This are the key elements within the toc lookup")
-    #print(key_elements)
         
     #remove duplicates from key_elements
-    #key_elements = list(set(key_elements))
+    key_elements = list(set(key_elements))
 
     swt = setandsortindex(swt,key_elements)
 
@@ -190,7 +199,11 @@ def setandsortindex(source,key_elements):
 
     if 'load_id' in source:
         del source['load_id']
-
+    
+    print("this is the source information in setandsort")
+    print(source.info())
+    print("This are the key elements in setandsort")
+    print(key_elements)
     source.set_index(key_elements,inplace=True)
 
     source = source.sort_index(axis=0,level=key_elements)
