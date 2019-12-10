@@ -106,7 +106,7 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     Parameters:
     source:             A dataframe holding the source data from the DW
     key_elements:       A list holding the non-numeric, non-source_item_id, non-toc fields
-    sourcereference:    A string holding the name of the TOC_reference
+    sourcereference:    A list holding strings representing the name of the TOC_reference
     dimtref:            A string holding the name of the relevant dimt name
 
     Returns:
@@ -116,14 +116,14 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     #if dataset has no toc values to lookup, just return the data as is
     if dimtref == 'NA':
         swt = source
-        print("This are key elements with no lookup")
-        print(key_elements)
-    else:
         
+    else:
+
         #if dataset is 207_GOVTSUPbyTOC use the specialsed reference table
         if dimtref == 'toc_ref':
             TOC_Names = getDWdimension('dbo','dimt_207_toc')
             dimtlookupname = 'Output_Name'
+        
         else:
             TOC_Names = getDWdimension('dbo','dimt_train_operating_company')
             dimtlookupname = 'train_operating_company_name'
@@ -132,7 +132,7 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
         #force conversion of TOC_Key saved as text into int, if not using the toc_key instead
         
-        print(f"the sourcereference is {sourcereference}")
+        #print(f"the sourcereference is {sourcereference}")
         if sourcereference == 'train_operating_company_id':
             swt[sourcereference] = swt[sourcereference].apply(pd.to_numeric)
 
@@ -143,10 +143,10 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
             temp_df = swt.merge(TOC_Names[[dimtref,dimtlookupname]],how='left',left_on=lookup,right_on=dimtref)
             temp_df = temp_df.rename(columns={dimtlookupname:lookup + '_toc_name'})
-            temp_df = temp_df.rename(columns={lookup + '_toc_name': 'toc_name'})
+            #temp_df = temp_df.rename(columns={lookup + '_toc_name': 'toc_name'})
 
-            if 'toc_name' not in key_elements:
-                key_elements.append('toc_name')
+            if lookup + 'toc_name' not in key_elements:
+                key_elements.append(lookup + '_toc_name')
                 #move toc to second place
                 key_elements.insert(1,key_elements.pop())
                 print(key_elements)
@@ -158,16 +158,28 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
         #remove the unnecessary linking fields from the merge
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
+        swt = swt.loc[:,~swt.columns.str.startswith('TOC_Victim_Key')]
+        swt = swt.loc[:,~swt.columns.str.startswith('TOC_Perpetrator_Key')]
 
         if 'train_operating_company_key' in key_elements:
             key_elements.remove('train_operating_company_key')
+        if 'Sector_Victim_key' in key_elements:
+            key_elements.remove('TOC_Victim_Key')
+        if 'Sector_Perpetrator_key' in key_elements:
+            key_elements.remove('TOC_Perpetrator_Key')
+            
 
-        print(swt.info())
+    #print("This is the swt info")
+    #print(swt.info())
         
-        print(key_elements)
+    #print("This are the key elements within the toc lookup")
+    #print(key_elements)
         
+    #remove duplicates from key_elements
+    #key_elements = list(set(key_elements))
 
-        swt = setandsortindex(swt,key_elements)
+    swt = setandsortindex(swt,key_elements)
+
 
     return swt
 
@@ -209,8 +221,8 @@ def individualranges(df, key_elements,change_type,feed_number):
     elif feed_number == '321':
         key_elements.remove('Date_key_with_Quarters')
 
-    elif feed_number == '329':
-        key_elements.remove('Time_Period_Key')
+    #elif feed_number == '329':
+    #    key_elements.remove('Time_Period_Key')
         
     else:    
         pass

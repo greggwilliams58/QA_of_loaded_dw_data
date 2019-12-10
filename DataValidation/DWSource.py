@@ -86,6 +86,8 @@ def getDWdata(schema_name,table_name,source_item_id):
     if 'Op Code' in df.columns:
         del df['Op Code']
     
+    
+
     #this relates to 321_OH
     #if table_name == 'factt_321_OH':
     #    del df['OH_ID']
@@ -101,7 +103,9 @@ def getDWdata(schema_name,table_name,source_item_id):
     if 'Concatenation' in df.columns:
         del df['Concatenation']
 
-    
+    #this relates to 332 PPMCaSLFailures
+    if 'PPM_CASL_Failures_id' in df.columns:
+        del df['PPM_CASL_Failures_id']
 
 
 
