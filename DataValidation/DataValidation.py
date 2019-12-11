@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '330'
-    FName = 'MaintenanceVols'
-    lowerdatefilter = 20181
-    upperdatefilter = 20183
+    FNum = '338'
+    FName = 'FREIGHT16VALUED'
+    lowerdatefilter = 201901
+    upperdatefilter = 201909
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -21,13 +21,11 @@ def main():
     #FName = 'DISAGGPPMCASL'
     
     #lists holding exceptional case information
-    toobigforexport = ['104DELAYS','205LENNON']
-    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols']
+    toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
-    #test here for new repo 
-
 
     unique_feed_features = {   
                     '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id','financial_period_key'],
@@ -65,7 +63,10 @@ def main():
                     '327ReliabilityandSustainability':['NR','factt_327_ReliabilityAndSustainability',['Financial_Period','route_id','Measure','Snapshot','Normalised','Time_Period','Type'],['NA'],'NA','Financial_Period'],
                     #'329RenewalsVols':['NR','factt_329_RenewalVolumes',['Time_Period_Key','Time_Period_Flag','Route_Name','Measure_Name','Measure_Type','Measure_sub_group','Measure_group'],['NA'],'NA','Time_Period_Key'],
                     '330MaintenanceVols':['NR','factt_330_Maintenance_Volumes',['Financial_Quarter_Key','Financial_Quarter_Name','Financial_Year_Key','Route_code','Route_name','Measure_Code','Measure_Description','Published_UOM','Ellipse_UOM'],['NA'],'NA','Financial_Quarter_Key'],
-                    '332PPMCaSLFailure':['NR','factt_332_PPM_CASL_Failures',['Financial_Period','National_or_Route_Data','TOC_Victim_Key','Sector_Victim','Sector_Victim_key','TOC_Perpetrator_Key','Sector_Perperator','Sector_Perperator_key','Delay_Type','Incident_Category','Route_Name','Measure_Name'],['TOC_Victim_Key','TOC_Perpetrator_Key'],'train_operating_company_key','Financial_Period']
+                    '332PPMCaSLFailure':['NR','factt_332_PPM_CASL_Failures',['Financial_Period','National_or_Route_Data','TOC_Victim_Key','Sector_Victim','Sector_Victim_key','TOC_Perpetrator_Key','Sector_Perperator','Sector_Perperator_key','Delay_Type','Incident_Category','Route_Name','Measure_Name'],['TOC_Victim_Key','TOC_Perpetrator_Key'],'train_operating_company_key','Financial_Period'],
+                    '335TrainMiles':['NR','factt_335_TrainMiles',['Financial_Period_Key','Financial_Year_Key','Route_Key','TOC_Key'],['TOC_Key'],'train_operating_company_key','Financial_Period_Key'],
+                    '336DRPCandAssist':['ATOC','factt_336_DRPCandAssist',['Financial_Period_key','Financial_year_key','TOC_key','Measure_group','Metric'],['TOC_key'],'train_operating_company_key','Financial_Period_key'],
+                    '338FREIGHT16VALUED':['ORR','factt_338_EuroFreightData',['calendar_month_key','summary_or_detailed','vehicle_type','national_grouping','nation_name','nation_code','CAFO_FOCA'],['NA'],'NA','calendar_month_key']
                     }
 
     #metadata for DW data

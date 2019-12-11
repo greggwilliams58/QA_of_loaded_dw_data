@@ -85,6 +85,11 @@ def getDWdata(schema_name,table_name,source_item_id):
     #this related to 313_DISAGGPPM
     if 'Op Code' in df.columns:
         del df['Op Code']
+
+    #this relates to 335_TrainMiles
+    if 'TrainMiles_Id' in df.columns:
+        del df['TrainMiles_Id']
+
     
     
 

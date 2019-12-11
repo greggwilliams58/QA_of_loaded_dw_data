@@ -156,8 +156,8 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
             #print(temp_df.info())
             swt = temp_df
 
-            #print("This is swt_data")
-            #print(swt.info())
+            print("This is swt_data")
+            print(swt.info())
 
         #remove the unnecessary linking fields from the merge
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
@@ -229,11 +229,12 @@ def individualranges(df, key_elements,change_type,feed_number):
         key_elements.remove('financial_year_key')
     elif 'Financial_year_of Publication' in key_elements:
         key_elements.remove('Financial_year_of Publication')
-    elif 'Financial_Period_key' in key_elements and feed_number == '312':
+    elif 'Financial_Period_key' in key_elements and feed_number in ['312','336','335']:
         key_elements.remove('Financial_Period_key')
     elif feed_number == '321':
         key_elements.remove('Date_key_with_Quarters')
-
+    elif feed_number == '338' and 'calendar_month_key' in key_elements:
+       key_elements.remove('calendar_month_key')
     #elif feed_number == '329':
     #    key_elements.remove('Time_Period_Key')
         
