@@ -202,7 +202,7 @@ def setandsortindex(source,key_elements):
     if 'load_id' in source:
         del source['load_id']
     
-
+    #na values are replaced with text placeholder
     source = source.fillna(value="nothing")
 
 
