@@ -187,6 +187,8 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     #remove duplicates from key_elements
     key_elements = list(set(key_elements))
 
+
+
     swt = setandsortindex(swt,key_elements)
 
 
@@ -200,14 +202,24 @@ def setandsortindex(source,key_elements):
     if 'load_id' in source:
         del source['load_id']
     
+
+    source = source.fillna(value="nothing")
+
+
+
     print("this is the source information in setandsort")
     print(source.info())
     print("This are the key elements in setandsort")
     print(key_elements)
+
     source.set_index(key_elements,inplace=True)
 
-    source = source.sort_index(axis=0,level=key_elements)
+    #source = source.reindex(columns=key_elements,fill_value="missing")
+
+    source.sort_index(axis=0,level=key_elements, inplace=True)
     
+    print("this is the source information after setandsort")
+    print(source)
  
 
     return source
@@ -225,6 +237,8 @@ def individualranges(df, key_elements,change_type,feed_number):
     #remove temporal element if not 209_Infrastructure
     if 'financial_period_key' in key_elements:
         key_elements.remove('financial_period_key')
+    elif 'Financial_Period_Key' in key_elements:
+        key_elements.remove('Financial_Period_Key')
     elif 'financial_year_key' in key_elements and feed_number != '209':
         key_elements.remove('financial_year_key')
     elif 'Financial_year_of Publication' in key_elements:
@@ -256,17 +270,25 @@ def individualranges(df, key_elements,change_type,feed_number):
         key_elements.remove('Target_Purpose')
 
     number_of_index_levels = df.index.nlevels
-    
+   
+
     measure_list = []
     print("Looping through ranges of individuals")
     print(f"within individual ranges key elements: {key_elements}")
-    print(df.info())
+    
+
+    #print(df.info())
     for (colname,coldata) in df.iteritems():
         nozerocoldata = coldata.replace(0,np.NaN)
+
         nonullcoldata = nozerocoldata.dropna()
+
         #print("This is no nan data")
         #print(nonullcoldata)
         for group_level,new_series in nonullcoldata.groupby(key_elements):
+            #replace NaN in index here
+            
+
             print(f"new series here: {group_level}")
             if change_type == 'PPC':
 

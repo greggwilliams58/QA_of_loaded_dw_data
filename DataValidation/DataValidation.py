@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '338'
-    FName = 'FREIGHT16VALUED'
-    lowerdatefilter = 201901
-    upperdatefilter = 201909
+    FNum = '346'
+    FName = 'NRComplaintsData'
+    lowerdatefilter = 2019202001
+    upperdatefilter = 2019202009
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -22,7 +22,7 @@ def main():
     
     #lists holding exceptional case information
     toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure']
-    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED','339TRAFFICMONTHLYVALUED','346NRComplaintsData']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
@@ -66,7 +66,11 @@ def main():
                     '332PPMCaSLFailure':['NR','factt_332_PPM_CASL_Failures',['Financial_Period','National_or_Route_Data','TOC_Victim_Key','Sector_Victim','Sector_Victim_key','TOC_Perpetrator_Key','Sector_Perperator','Sector_Perperator_key','Delay_Type','Incident_Category','Route_Name','Measure_Name'],['TOC_Victim_Key','TOC_Perpetrator_Key'],'train_operating_company_key','Financial_Period'],
                     '335TrainMiles':['NR','factt_335_TrainMiles',['Financial_Period_Key','Financial_Year_Key','Route_Key','TOC_Key'],['TOC_Key'],'train_operating_company_key','Financial_Period_Key'],
                     '336DRPCandAssist':['ATOC','factt_336_DRPCandAssist',['Financial_Period_key','Financial_year_key','TOC_key','Measure_group','Metric'],['TOC_key'],'train_operating_company_key','Financial_Period_key'],
-                    '338FREIGHT16VALUED':['ORR','factt_338_EuroFreightData',['calendar_month_key','summary_or_detailed','vehicle_type','national_grouping','nation_name','nation_code','CAFO_FOCA'],['NA'],'NA','calendar_month_key']
+                    '338FREIGHT16VALUED':['ORR','factt_338_EuroFreightData',['calendar_month_key','summary_or_detailed','vehicle_type','national_grouping','nation_name','nation_code','CAFO_FOCA'],['NA'],'NA','calendar_month_key'],
+                    '339TRAFFICMONTHLYVALUED':['ORR','factt_339_EuroTunnelTraffic',['calendar_month_key','Travel_Direction','Vehicle_category'],['NA'],'NA','calendar_month_key'],
+                    '340SECTIONCATT':['TOCs','factt_340_sectionC',['financial_period_key','TOC_Key','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key'],
+                    #'343ATOCSafetyKPIs': only one load in the warehouse
+                    '346NRComplaintsData':['NR','factt_346_NRComplaintsData',['Financial_Period_Key','TOC_Name','Section','Section_description','Section_detailed_description','Level 1 Metric','Level 2 Metric','Level 3 Metric'],['NA'],'NA','Financial_Period_Key']
                     }
 
     #metadata for DW data

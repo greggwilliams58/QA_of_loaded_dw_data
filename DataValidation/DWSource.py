@@ -112,8 +112,9 @@ def getDWdata(schema_name,table_name,source_item_id):
     if 'PPM_CASL_Failures_id' in df.columns:
         del df['PPM_CASL_Failures_id']
 
-
-
+    #this relates to 346 NRCOmplaints
+    if 'NR_complaints_id' in df.columns:
+        del df['NR_complaints_id']
 
 
 
