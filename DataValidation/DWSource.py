@@ -116,7 +116,9 @@ def getDWdata(schema_name,table_name,source_item_id):
     if 'NR_complaints_id' in df.columns:
         del df['NR_complaints_id']
 
-
+    #this relates to 348 FreightMiles
+    if 'FreightMiles_Id' in df.columns:
+        del df['FreightMiles_Id']
 
     return df
 

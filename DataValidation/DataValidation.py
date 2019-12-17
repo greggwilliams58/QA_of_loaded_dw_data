@@ -10,10 +10,10 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '346'
-    FName = 'NRComplaintsData'
+    FNum = '348'
+    FName = 'FreightMiles'
     lowerdatefilter = 2019202001
-    upperdatefilter = 2019202009
+    upperdatefilter = 2019202008
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -70,7 +70,8 @@ def main():
                     '339TRAFFICMONTHLYVALUED':['ORR','factt_339_EuroTunnelTraffic',['calendar_month_key','Travel_Direction','Vehicle_category'],['NA'],'NA','calendar_month_key'],
                     '340SECTIONCATT':['TOCs','factt_340_sectionC',['financial_period_key','TOC_Key','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key'],
                     #'343ATOCSafetyKPIs': only one load in the warehouse
-                    '346NRComplaintsData':['NR','factt_346_NRComplaintsData',['Financial_Period_Key','TOC_Name','Section','Section_description','Section_detailed_description','Level 1 Metric','Level 2 Metric','Level 3 Metric'],['NA'],'NA','Financial_Period_Key']
+                    '346NRComplaintsData':['NR','factt_346_NRComplaintsData',['Financial_Period_Key','TOC_Name','Section','Section_description','Section_detailed_description','Level 1 Metric','Level 2 Metric','Level 3 Metric'],['NA'],'NA','Financial_Period_Key'],
+                    '348FreightMiles':['NR','factt_348_FreightMiles',['Financial_Period_Key','Financial_Year_Key','Route_Key','TOC_Key'],['TOC_Key'],'train_operating_company_key','Financial_Period_Key']
                     }
 
     #metadata for DW data
