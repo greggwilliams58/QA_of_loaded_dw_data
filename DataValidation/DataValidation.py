@@ -10,8 +10,8 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '348'
-    FName = 'FreightMiles'
+    FNum = '351'
+    FName = 'SDCTOC'
     lowerdatefilter = 2019202001
     upperdatefilter = 2019202008
     
@@ -22,7 +22,7 @@ def main():
     
     #lists holding exceptional case information
     toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure']
-    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED','339TRAFFICMONTHLYVALUED','346NRComplaintsData']
+    notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED','339TRAFFICMONTHLYVALUED','346NRComplaintsData','351SDCNational']
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
@@ -71,7 +71,12 @@ def main():
                     '340SECTIONCATT':['TOCs','factt_340_sectionC',['financial_period_key','TOC_Key','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key'],
                     #'343ATOCSafetyKPIs': only one load in the warehouse
                     '346NRComplaintsData':['NR','factt_346_NRComplaintsData',['Financial_Period_Key','TOC_Name','Section','Section_description','Section_detailed_description','Level 1 Metric','Level 2 Metric','Level 3 Metric'],['NA'],'NA','Financial_Period_Key'],
-                    '348FreightMiles':['NR','factt_348_FreightMiles',['Financial_Period_Key','Financial_Year_Key','Route_Key','TOC_Key'],['TOC_Key'],'train_operating_company_key','Financial_Period_Key']
+                    '348FreightMiles':['NR','factt_348_FreightMiles',['Financial_Period_Key','Financial_Year_Key','Route_Key','TOC_Key'],['TOC_Key'],'train_operating_company_key','Financial_Period_Key'],
+                    '350DLRS':['NR','factt_350_DLRS',['financial_period_key','toc_key','measure'],['toc_key'],'train_operating_company_key','financial_period_key'],
+                    #only one load and 2.5 million rows'350DLRSSector':['NR','factt_350_DLRSSector',['financial_period_key','toc_key','Service_Group_Code','Service_Group_Description','Geography_Code','Geography_Description','measure'],['toc_key'],'train_operating_company_key','financial_period_key']
+                    '351SDCNATIONAL':['NR','factt_351_SDC_national',['financial_period_key','Data_category','measure'],['NA'],'NA','financial_period_key'],
+                    '351SDCSUBTOC':['NR','factt_351_SDC_subtoc',['financial_period_key','toc_key','toc_subtoc_data','sub_operator_key','data_description'],['toc_key'],'train_operating_company_key','financial_period_key'],
+                    '351SDCTOC':['NR','factt_351_SDC_toc',['region_key','financial_period_key','toc_key','toc_subtoc_data','data_description','measure'],['toc_key'],'train_operating_company_key','financial_period_key']
                     }
 
     #metadata for DW data

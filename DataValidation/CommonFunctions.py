@@ -22,7 +22,14 @@ def GetMetaData(feednumber, feedname):
     Returns:
     An ordered dictionary holding the metadata info for later use
     """
-    if feedname not in ['APPEALS','COMPLAINTS']:
+    #check for 
+    if feednumber == '351':
+        feedname = 'SDC'
+    
+    
+    if feedname not in ['APPEALS','COMPLAINTS','SDCNATIONAL']:
+    
+
         rootOfMetaData = '//orrdwfs1.file.core.windows.net/feeds/LIVE/Metadata/'
     
         filepathToMetaData = rootOfMetaData + feednumber + '/' + feedname + '/' + 'Metadata_' + feednumber + '_' + feedname + '.xls'
