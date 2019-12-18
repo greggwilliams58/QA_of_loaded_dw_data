@@ -64,16 +64,20 @@ def getDWdata(schema_name,table_name,source_item_id):
     df = pd.read_sql(query, conn)
 
     #delete unnecessary columns
-    #this related to 224_sectiona
+    #this related to 224_sectiona and 353_sectiona
     if 'sectiona_id' in df.columns:
         del df['sectiona_id']
     
-    #this related to 224_sectiona
+    #this related to 224_sectiona and 353_sectionb
     if 'sectionb_id' in df.columns:
         del df['sectionb_id']
 
     if 'Complaint_category_id' in df.columns:
         del df['Complaint_category_id']
+    
+    # this relates to 353 sectiond
+    if 'sectiond_id' in df.columns:
+        del df['sectiond_id']
 
     #this related to 311_ASR
     if 'ASR_ID' in df.columns:
@@ -120,12 +124,10 @@ def getDWdata(schema_name,table_name,source_item_id):
     if 'FreightMiles_Id' in df.columns:
         del df['FreightMiles_Id']
     
-    #this relates to 353 outliers
-    if 'sectiona_id' in df.columns:
-        del df['sectiona_id']
 
     if 'Level_3_Category' in df.columns and table_name == 'factt_353_sectiona':
         del df['Level_3_Category']
+    
 
     return df
 

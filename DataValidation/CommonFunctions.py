@@ -282,13 +282,10 @@ def individualranges(df, key_elements,change_type,feed_number):
 
     number_of_index_levels = df.index.nlevels
    
-
     measure_list = []
     print("Looping through ranges of individuals")
     print(f"within individual ranges key elements: {key_elements}")
     
-
-    #print(df.info())
     for (colname,coldata) in df.iteritems():
         nozerocoldata = coldata.replace(0,np.NaN)
 
@@ -301,9 +298,17 @@ def individualranges(df, key_elements,change_type,feed_number):
 
             print(f"new series here: {group_level}")
             if change_type == 'PPC':
-
+                print("new_series")
+                print(new_series)
                 nonull_series = new_series.pct_change().dropna()
+                
+                print("no null series")
+                print(nonull_series)
+                
                 filtered_series = set_boundaries(nonull_series)
+                print("filtered_series")
+                print(filtered_series)
+                
                 measure_list.append(filtered_series)
 
             elif change_type == 'YPC':

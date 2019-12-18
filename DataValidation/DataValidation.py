@@ -10,10 +10,10 @@ import tkinter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '353'
-    FName = 'ComplaintsOutliersA'
-    lowerdatefilter = 2018201901
-    upperdatefilter = 2019202008
+    FNum = '405'
+    FName = 'SSM'
+    lowerdatefilter = 20172018
+    upperdatefilter = 20182019
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -21,7 +21,8 @@ def main():
     #FName = 'DISAGGPPMCASL'
     
     #lists holding exceptional case information
-    toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure','353ComplaintsOutliersA']
+    #353 has a bug preventing export: no data is returned from the filtered series
+    toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure'] 
     notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED','339TRAFFICMONTHLYVALUED','346NRComplaintsData','351SDCNational']
     
 
@@ -77,7 +78,13 @@ def main():
                     '351SDCNATIONAL':['NR','factt_351_SDC_national',['financial_period_key','Data_category','measure'],['NA'],'NA','financial_period_key'],
                     '351SDCSUBTOC':['NR','factt_351_SDC_subtoc',['financial_period_key','toc_key','toc_subtoc_data','sub_operator_key','data_description'],['toc_key'],'train_operating_company_key','financial_period_key'],
                     '351SDCTOC':['NR','factt_351_SDC_toc',['region_key','financial_period_key','toc_key','toc_subtoc_data','data_description','measure'],['toc_key'],'train_operating_company_key','financial_period_key'],
-                    '353ComplaintsOutliersA':['TOCs','factt_353_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
+                    '353ComplaintsOutliersA':['TOCs','factt_353_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '353ComplaintsOutliersB':['TOCs','factt_353_sectionb',['financial_period_key','train_operating_company_key','Metric','Contact_method'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    '353ComplaintsOutliersD':['TOCs','factt_353_sectiond',['financial_period_key','TOC_Key','Booking_Type','Metric_Reference','Measure_Name'],['TOC_Key'],'train_operating_company_key','financial_period_key'],
+                    '405LMDSM':['NR','factt_405_LightMaintenanceDepot_SMeasure',['Year','Operating_Route','Depot_Name','Depot_Category','Country'],['NA'],'NA','Year'],
+                    '405SSM':['NR','factt_405_Station_StewardshipMeasure',['Year','Station_Name','Operating_Route','Station_Category','TOC Owner (if applicable)','Comments'],['NA'],'NA','Year']
+                    
+                    
                     }
 
     #metadata for DW data
