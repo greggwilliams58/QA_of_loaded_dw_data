@@ -5,14 +5,14 @@ import pandas as pd
 import pprint as pp
 import numpy as np
 import xlsxwriter
-
+import tkinter
 
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '351'
-    FName = 'SDCTOC'
-    lowerdatefilter = 2019202001
+    FNum = '353'
+    FName = 'ComplaintsOutliersA'
+    lowerdatefilter = 2018201901
     upperdatefilter = 2019202008
     
     #testing for changes
@@ -21,7 +21,7 @@ def main():
     #FName = 'DISAGGPPMCASL'
     
     #lists holding exceptional case information
-    toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure']
+    toobigforexport = ['104DELAYS','205LENNON','332PPMCaSLFailure','353ComplaintsOutliersA']
     notoclookup = ['106TSR','202SRA','207GOVTSUP','209NRTINFRA','224APPEALS','311ASR','321OH','326FDMbySFC','327ReliabilityandSustainability','330MaintenanceVols','338FREIGHT16VALUED','339TRAFFICMONTHLYVALUED','346NRComplaintsData','351SDCNational']
     
 
@@ -76,7 +76,8 @@ def main():
                     #only one load and 2.5 million rows'350DLRSSector':['NR','factt_350_DLRSSector',['financial_period_key','toc_key','Service_Group_Code','Service_Group_Description','Geography_Code','Geography_Description','measure'],['toc_key'],'train_operating_company_key','financial_period_key']
                     '351SDCNATIONAL':['NR','factt_351_SDC_national',['financial_period_key','Data_category','measure'],['NA'],'NA','financial_period_key'],
                     '351SDCSUBTOC':['NR','factt_351_SDC_subtoc',['financial_period_key','toc_key','toc_subtoc_data','sub_operator_key','data_description'],['toc_key'],'train_operating_company_key','financial_period_key'],
-                    '351SDCTOC':['NR','factt_351_SDC_toc',['region_key','financial_period_key','toc_key','toc_subtoc_data','data_description','measure'],['toc_key'],'train_operating_company_key','financial_period_key']
+                    '351SDCTOC':['NR','factt_351_SDC_toc',['region_key','financial_period_key','toc_key','toc_subtoc_data','data_description','measure'],['toc_key'],'train_operating_company_key','financial_period_key'],
+                    '353ComplaintsOutliersA':['TOCs','factt_353_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
                     }
 
     #metadata for DW data
@@ -154,7 +155,8 @@ def main():
 
     print("getting individual ranges for PPC")
     DWPPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'PPC',FNum) 
-  
+    print("This is DWPPC")
+    print(DWPPC)  
     
     print("getting individual range for YPC")
     DWYPC = individualranges(DWfiltered,unique_feed_features[FNum+FName][2],'YPC',FNum)
@@ -184,7 +186,8 @@ def main():
     with pd.ExcelWriter(f"data validation for {FNum}_{FName}.xlsx",engine='openpyxl') as writer:
         print("writing to xls")
         
-        
+        print(DWoldfiltered)
+        print(DWoldfiltered.info())
         #SD.to_excel(writer,sheet_name='Source_data')
         if FNum + FName not in toobigforexport:
             print("exporting previous DW_load")

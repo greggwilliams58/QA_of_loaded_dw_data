@@ -11,6 +11,8 @@ import xlsxwriter
 
 
 
+
+
 def GetMetaData(feednumber, feedname):
     """
     This gets MetaData information from metadata folder.  It returns an ordered dictionary holding the metadata info.
@@ -166,9 +168,10 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
             print("This is swt_data")
             print(swt.info())
 
-        #remove the unnecessary linking fields from the merge
+        #remove the unnecessary linking fields from the merged source data
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
-        swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
+        #if sourcereference == 'train_operating_company_key':
+        #swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
         
         #this removes keys from 332_PPM_CaSL failures
         if 'TOC_Victim_Key' in swt.columns:
@@ -177,7 +180,8 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
         if 'TOC_Perpetrator_Key' in swt.columns:
             swt = swt.drop(['TOC_Perpetrator_Key'],axis=1)
 
-
+        if 'train_operating_company_key' in swt.columns:
+            swt = swt.drop(['train_operating_company_key'],axis=1)
         
 
         
@@ -290,11 +294,10 @@ def individualranges(df, key_elements,change_type,feed_number):
 
         nonullcoldata = nozerocoldata.dropna()
 
-        #print("This is no nan data")
-        #print(nonullcoldata)
+        print("This is no nan data")
+        print(nonullcoldata)
         for group_level,new_series in nonullcoldata.groupby(key_elements):
             #replace NaN in index here
-            
 
             print(f"new series here: {group_level}")
             if change_type == 'PPC':
@@ -311,7 +314,10 @@ def individualranges(df, key_elements,change_type,feed_number):
           
             else:
                 measure_list.append(new_series)
-
+    
+    print("final measure list")
+    print(measure_list)
+    
     final_df = series_to_df(measure_list,key_elements,number_of_index_levels)
 
     return final_df
@@ -322,7 +328,7 @@ def set_boundaries(raw_series):
     """
     This filters a given series by a confidence interval of 95%
     """
-    #print(raw_series)
+    print(raw_series)
     print("setting boundaries now")
     series_stdev = raw_series.std()
 
@@ -334,6 +340,7 @@ def set_boundaries(raw_series):
     #print(f"series name is {raw_series.name} and boundaries are {boundary[0]} and {boundary[1]}")
 
     return raw_series[filter_cond]
+    
 
 
 def series_to_df(measure_list,index_keys,index_levels):
@@ -359,19 +366,25 @@ def series_to_df(measure_list,index_keys,index_levels):
     reorder_index.append(0)
  
     #loop through the list of series objects
+    #print("This is the measure list")
+    #print(measure_list)
+    
     for counter,series_data in enumerate(measure_list):
         #convert series into a data frame with the series name added to the index as a measure
         df1 = (pd.concat([measure_list[counter]],keys=[series_data.name])).reorder_levels(reorder_index).to_frame('observations')
+        
+        
+
 
         #append the current df to the cumulative df
         interim_df = pd.concat([df1,interim_df])
-        
+
         #convert  the measures into columns
         final_stacked_df = (interim_df.set_index(interim_df.groupby(interim_df.index).cumcount(),append=True)['observations']
                                 .unstack([reorder_index[-2]])
                                 .reset_index(level=reorder_index[-2], drop=True))
     
-    print(final_stacked_df)
+
     return final_stacked_df
 
 

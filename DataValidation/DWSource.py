@@ -119,6 +119,13 @@ def getDWdata(schema_name,table_name,source_item_id):
     #this relates to 348 FreightMiles
     if 'FreightMiles_Id' in df.columns:
         del df['FreightMiles_Id']
+    
+    #this relates to 353 outliers
+    if 'sectiona_id' in df.columns:
+        del df['sectiona_id']
+
+    if 'Level_3_Category' in df.columns and table_name == 'factt_353_sectiona':
+        del df['Level_3_Category']
 
     return df
 
