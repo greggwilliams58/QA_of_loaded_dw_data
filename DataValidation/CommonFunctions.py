@@ -315,9 +315,6 @@ def individualranges(df, key_elements,change_type,feed_number):
             else:
                 measure_list.append(new_series)
     
-    print("final measure list")
-    print(measure_list)
-    
     final_df = series_to_df(measure_list,key_elements,number_of_index_levels)
 
     return final_df
