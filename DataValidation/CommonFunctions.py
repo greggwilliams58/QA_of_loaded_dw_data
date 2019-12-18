@@ -150,21 +150,17 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
             temp_df = swt.merge(TOC_Names[[dimtref,dimtlookupname]],how='left',left_on=lookup,right_on=dimtref)
             temp_df = temp_df.rename(columns={dimtlookupname:lookup + '_toc_name'})
-            temp_df = temp_df.rename(columns={lookup + '_toc_name': 'toc_name'})
+            #temp_df = temp_df.rename(columns={lookup + '_toc_name': 'toc_name'})
 
             if lookup + 'toc_name' not in key_elements:
                 key_elements.append(lookup + '_toc_name')
                 #move toc to second place
                 key_elements.insert(1,key_elements.pop())
-                print(f"key elments inside loop{key_elements}")
+                #print(key_elements)
             else:
                 pass
-            
-            if 'train_operating_company_key_toc_name' in key_elements:
-                key_elements.replace('train_oeprating_company_key_toc_name','toc_name')
             #print("This is temp_data")
             #print(temp_df.info())
-            
             swt = temp_df
 
             print("This is swt_data")
@@ -172,7 +168,6 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
 
         #remove the unnecessary linking fields from the merge
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
-        
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_key')] 
         
         #this removes keys from 332_PPM_CaSL failures
@@ -182,6 +177,10 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
         if 'TOC_Perpetrator_Key' in swt.columns:
             swt = swt.drop(['TOC_Perpetrator_Key'],axis=1)
 
+
+        
+
+        
         #this removes keys from the key elements list
         if 'train_operating_company_key' in key_elements:
             key_elements.remove('train_operating_company_key')

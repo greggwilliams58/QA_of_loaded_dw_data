@@ -10,8 +10,8 @@ import xlsxwriter
 def main():
     pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '353'
-    FName = 'ComplaintsOutliersA'
+    FNum = '351'
+    FName = 'SDCTOC'
     lowerdatefilter = 2019202001
     upperdatefilter = 2019202008
     
@@ -76,9 +76,7 @@ def main():
                     #only one load and 2.5 million rows'350DLRSSector':['NR','factt_350_DLRSSector',['financial_period_key','toc_key','Service_Group_Code','Service_Group_Description','Geography_Code','Geography_Description','measure'],['toc_key'],'train_operating_company_key','financial_period_key']
                     '351SDCNATIONAL':['NR','factt_351_SDC_national',['financial_period_key','Data_category','measure'],['NA'],'NA','financial_period_key'],
                     '351SDCSUBTOC':['NR','factt_351_SDC_subtoc',['financial_period_key','toc_key','toc_subtoc_data','sub_operator_key','data_description'],['toc_key'],'train_operating_company_key','financial_period_key'],
-                    '351SDCTOC':['NR','factt_351_SDC_toc',['region_key','financial_period_key','toc_key','toc_subtoc_data','data_description','measure'],['toc_key'],'train_operating_company_key','financial_period_key'],
-                    '353ComplaintsOutliersA':['TOCs','factt_353_sectiona',['financial_period_key','train_operating_company_key','Level_1_Category','Level_2_Category','Level_3_Category'],['train_operating_company_key'],'train_operating_company_key','financial_period_key']
-                    
+                    '351SDCTOC':['NR','factt_351_SDC_toc',['region_key','financial_period_key','toc_key','toc_subtoc_data','data_description','measure'],['toc_key'],'train_operating_company_key','financial_period_key']
                     }
 
     #metadata for DW data

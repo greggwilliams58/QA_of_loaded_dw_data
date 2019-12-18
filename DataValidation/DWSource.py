@@ -119,11 +119,6 @@ def getDWdata(schema_name,table_name,source_item_id):
     #this relates to 348 FreightMiles
     if 'FreightMiles_Id' in df.columns:
         del df['FreightMiles_Id']
-    
-    #this relates to 353_sectiona
-    if 'sectiona_id' in df.columns:
-        del df['sectiona_id']
-
 
     return df
 
