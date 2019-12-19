@@ -10,10 +10,10 @@ import tkinter
 def main():
     #pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '326'
-    FName = 'FDMbySFC'
-    lowerdatefilter = 2012201301
-    upperdatefilter = 2019202009
+    FNum = '202'
+    FName = 'SRA'
+    lowerdatefilter = 2018201901
+    upperdatefilter = 2019202007
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -27,7 +27,6 @@ def main():
     
 
     #dictionary holding the key-pathtometadata 0) schema, 1)table_name, 2)index fields,3)source TOC lookup fields,4)dimt_toc_lookup field, 5) date_type field
-
     unique_feed_features = {   
                     '104DELAYS':['NR','factt_104_delays',['financial_period_key','route','delay_type','responsible_org_code','toc_affected','incident_category','area'],['responsible_org_code','toc_affected'],'train_operating_company_id','financial_period_key'],
                     '104INCIDENTCOUNT':['NR','factt_104_incidentcount',['financial_period_key','route','delay_type','responsible_org_code','incident_category','area'],['responsible_org_code'],'train_operating_company_id','financial_period_key'],
@@ -105,19 +104,23 @@ def main():
     
         latestSID = source_item_id[-1]
         previousSID = source_item_id[-1]
-
-    else:
-    
+        oldestSID = source_item_id[-1]
+    elif len(source_item_id) == 2:
         latestSID = source_item_id[-1]
         previousSID = source_item_id[-2]
+        oldestSID = source_item_id[-2]
+    else:
+        latestSID = source_item_id[-1]
+        previousSID = source_item_id[-2]
+        oldestSID = source_item_id[-3]
 
     #latestSID = 8995
     #previousSID = 7882
     
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
-    print(f"The lowest SID - {previousSID}")
-    
+    print(f"The lower SID - {previousSID}")
+    print(f"The lowest SID = {oldestSID}")
 
 
     print("getting DW data")   
@@ -125,20 +128,20 @@ def main():
     print(DWnew)
     print(DWnew.info())
     
-
-
     DWold = getDWdata(schema,table_name,previousSID)
+
+    DWoldest = getDWdata(schema,table_name,oldestSID)
 
     if FNum+FName not in notoclookup:
         print("looking up TOC info")
         DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
         DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
-    
+        DWoldest = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4])
     else:
         print("no lookup for TOC needed")
         DWnew = setandsortindex(DWnew,unique_feed_features[FNum+FName][2])
         DWold = setandsortindex(DWold,unique_feed_features[FNum+FName][2])
-        
+        DWoldest = setandsortindex(DWoldest,unique_feed_features[FNum+FName][2])
     
 
     print(DWnew)
@@ -158,6 +161,13 @@ def main():
     except KeyError:
         print(f"dates supplied {lowerdatefilter} and {upperdatefilter} not in data\n")
         DWoldfiltered = DWold
+
+    try:
+        print(f"filtering previous load by date values {lowerdatefilter} and {upperdatefilter}")
+        DWoldestfiltered = DWoldest.loc[(DWoldest.index.get_level_values(unique_feed_features[FNum+FName][5]) >= lowerdatefilter) & (DWoldest.index.get_level_values(unique_feed_features[FNum+FName][5]) <= upperdatefilter) ]
+    except KeyError:
+        print(f"dates supplied {lowerdatefilter} and {upperdatefilter} not in data\n")
+        DWoldestfiltered = DWoldest
 
 
     print("getting individual ranges for PPC")
@@ -219,19 +229,25 @@ def main():
         output_to_excel(PCvariance,'No data shows as being revised since previous load',writer, "percentage revisions")
         output_to_excel(filteredDWPPC,f'No data shows as having significant Period on Period change for {upperdatefilter}',writer,f"PonP change for {upperdatefilter}")
         output_to_excel(DWYPC,'No data shows as being outside 95% confidence interval for Year on Year change',writer,f"YonY change for {str(upperdatefilter)[:8]}")
-
+        
+        print("Summary of new data\n")
         describe_current = DWfiltered.describe()
         summary_text_new = pd.DataFrame({f"Latest Load is source item id {latestSID}":[]})
         summary_text_new.to_excel(writer,sheet_name="Summary_Data",startrow=0,startcol=0)
         describe_current.to_excel(writer,sheet_name="Summary_Data",startrow=1,startcol=0)
 
-        describe_old = DWoldfiltered.describe()
-        print("Summary of old data\n")
+        print("Summary of older data\n")
+        describe_old = DWoldfiltered.describe()       
         summary_text_old = pd.DataFrame({f"Previous Load is source item id: {previousSID}": [ ]})
-        print("Summary of new data\n")
-        summary_text_old.to_excel(writer,sheet_name="Summary_Data", startrow=15,startcol=0)
-        describe_old.to_excel(writer,sheet_name="Summary_Data", startrow=16,startcol=0)
- 
+        summary_text_old.to_excel(writer,sheet_name="Summary_Data", startrow=11,startcol=0)
+        describe_old.to_excel(writer,sheet_name="Summary_Data", startrow=12,startcol=0)
+        
+        print("Summary of oldest data")
+        describe_oldest = DWoldestfiltered.describe()
+        summary_text_oldest = pd.DataFrame({f"Next previous Load is source item id: {oldestSID}": [ ]})
+        summary_text_oldest.to_excel(writer,sheet_name="Summary_Data", startrow=22,startcol=0)
+        describe_oldest.to_excel(writer,sheet_name="Summary_Data", startrow=23,startcol=0)
+
     writer.save()
 
 if __name__ == '__main__':
