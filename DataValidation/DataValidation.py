@@ -8,12 +8,12 @@ import xlsxwriter
 import tkinter
 
 def main():
-    pd.options.mode.chained_assignment = 'raise'
+    #pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '405'
-    FName = 'SSM'
-    lowerdatefilter = 20172018
-    upperdatefilter = 20182019
+    FNum = '326'
+    FName = 'FDMbySFC'
+    lowerdatefilter = 2012201301
+    upperdatefilter = 2019202009
     
     #testing for changes
     #metadata for source and metadatafiles
