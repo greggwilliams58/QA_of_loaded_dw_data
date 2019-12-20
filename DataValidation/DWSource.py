@@ -94,15 +94,6 @@ def getDWdata(schema_name,table_name,source_item_id):
     if 'TrainMiles_Id' in df.columns:
         del df['TrainMiles_Id']
 
-    
-    
-
-    #this relates to 321_OH
-    #if table_name == 'factt_321_OH':
-    #    del df['OH_ID']
-    #    del df['NR_Route']
-    #    del df['Date_key_with_Annual']
-    #    del df['Quarter_Date_key']
 
     #this relates to 324Average_Lateness
     if 'Average_lateness_id' in df.columns:

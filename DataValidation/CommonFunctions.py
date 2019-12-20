@@ -10,9 +10,6 @@ from scipy import stats
 import xlsxwriter
 
 
-
-
-
 def GetMetaData(feednumber, feedname):
     """
     This gets MetaData information from metadata folder.  It returns an ordered dictionary holding the metadata info.
@@ -260,11 +257,6 @@ def individualranges(df, key_elements,change_type,feed_number):
         key_elements.remove('Date_key_with_Quarters')
     elif feed_number == '338' and 'calendar_month_key' in key_elements:
        key_elements.remove('calendar_month_key')
-    elif feed_number == '202' and 'date_key' in key_elements:
-       key_elements.remove('date_key')
-       #elif feed_number == '329':
-    #    key_elements.remove('Time_Period_Key')
-        
     else:    
         pass
     
@@ -293,8 +285,8 @@ def individualranges(df, key_elements,change_type,feed_number):
 
         nonullcoldata = nozerocoldata.dropna()
 
-        print("This is no nan data")
-        print(nonullcoldata)
+        #print("This is no nan data")
+        #print(nonullcoldata)
         for group_level,new_series in nonullcoldata.groupby(key_elements):
             #replace NaN in index here
 
@@ -325,6 +317,10 @@ def individualranges(df, key_elements,change_type,feed_number):
     final_df = series_to_df(measure_list,key_elements,number_of_index_levels)
 
     return final_df
+
+
+
+
 
 
 
