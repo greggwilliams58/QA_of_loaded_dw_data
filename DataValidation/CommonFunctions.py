@@ -162,8 +162,8 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
             #print(temp_df.info())
             swt = temp_df
 
-            print("This is swt_data")
-            print(swt.info())
+            #print("This is swt_data")
+            #print(swt.info())
 
         #remove the unnecessary linking fields from the merged source data
         swt = swt.loc[:,~swt.columns.str.startswith('train_operating_company_id_')]
@@ -195,18 +195,19 @@ def lookupTOCdata(source,key_elements,sourcereference,dimtref):
     #remove duplicates from key_elements
     key_elements = list(set(key_elements))
 
+    
 
+    swt_sorted = setandsortindex(swt,key_elements)
+    print("SWT after setandsorted: within toc lookup")
+    print(swt_sorted)
 
-    swt = setandsortindex(swt,key_elements)
-
-
-    return swt
+    return swt_sorted
 
 
 def setandsortindex(source,key_elements):
     if 'source_item_id' in source:
         del source['source_item_id']
-
+    
     if 'load_id' in source:
         del source['load_id']
     
@@ -215,10 +216,10 @@ def setandsortindex(source,key_elements):
 
 
 
-    print("this is the source information in setandsort")
-    print(source.info())
-    print("This are the key elements in setandsort")
-    print(key_elements)
+    #print("this is the source information in setandsort at start")
+    #print(source.info())
+    #print("This are the key elements in setandsort at start")
+    #print(key_elements)
 
     source.set_index(key_elements,inplace=True)
 
@@ -226,8 +227,8 @@ def setandsortindex(source,key_elements):
 
     source.sort_index(axis=0,level=key_elements, inplace=True)
     
-    print("this is the source information after setandsort")
-    print(source)
+    #print("this is the source information in setandsort at end")
+    #print(source)
  
 
     return source

@@ -10,10 +10,10 @@ import tkinter
 def main():
     #pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '202'
-    FName = 'SRA'
+    FNum = '105'
+    FName = 'FMILEAGE'
     lowerdatefilter = 2018201901
-    upperdatefilter = 2019202007
+    upperdatefilter = 2019202010
     
     #testing for changes
     #metadata for source and metadatafiles
@@ -34,7 +34,9 @@ def main():
                     '105FMILEAGE':['NR','factt_105_freight_mileage',['financial_period_key','train_operating_company_key','provisional'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'] ,
                     '106TSR':['NR', 'factt_106_tsr',['route','classification','financial_period_key'],['route'],'route','financial_period_key' ],
                     '114NRAVAILABILITY':['NR','factt_114_nravailability_freight',['financial_period_key','train_operating_company_key'] ,['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
+                    
                     '119TARGETS':['NR','factt_119_targets',['Financial_period_key','TOC_key','Target_Name','Target_Group','Target_Scope','Target_Purpose'],['TOC_key'],'train_operating_company_key','Financial_period_key'],
+                   
                     '202SRA':['DFT','factt_202_sra',['date_key','financial_period_key'],['NA'],'NA','financial_period_key' ],
                     '203COMMERCIALTRAINMOVES':['DFT','factt_203_commercialtrainmoves',['financial_year_key','financial_period_key','chargeable'],['train_operating_company_key'],'train_operating_company_key','financial_period_key'],
                     '206ROLLINGSTOCK':['DFT','factt_206_rollingstock_annual',['financial_year_key','toc_key'],['toc_key'],'train_operating_company_key','financial_year_key'],
@@ -136,7 +138,8 @@ def main():
         print("looking up TOC info")
         DWnew = lookupTOCdata(DWnew, unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
         DWold = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4] )
-        DWoldest = lookupTOCdata(DWold,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4])
+        DWoldest = lookupTOCdata(DWoldest,unique_feed_features[FNum+FName][2],unique_feed_features[FNum+FName][3],unique_feed_features[FNum+FName][4])
+        
     else:
         print("no lookup for TOC needed")
         DWnew = setandsortindex(DWnew,unique_feed_features[FNum+FName][2])
