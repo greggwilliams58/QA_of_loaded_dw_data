@@ -10,8 +10,8 @@ import tkinter
 def main():
     #pd.options.mode.chained_assignment = 'raise'
     pd.set_option("display.precision",16)
-    FNum = '105'
-    FName = 'FMILEAGE'
+    FNum = '202'
+    FName = 'SRA'
     lowerdatefilter = 2018201901
     upperdatefilter = 2019202010
     
@@ -116,9 +116,12 @@ def main():
         previousSID = source_item_id[-2]
         oldestSID = source_item_id[-3]
 
-    #latestSID = 8995
-    #previousSID = 7882
-    
+    #manual codes for SID where loading goes wrong
+    #latestSID = 9434
+    #previousSID = 9185
+    #oldestSID = 8908
+
+
     #datasets too large for DW_output
     print(f"The latest SID = {latestSID}")
     print(f"The lower SID - {previousSID}")

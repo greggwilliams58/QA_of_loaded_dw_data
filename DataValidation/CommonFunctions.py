@@ -290,7 +290,7 @@ def individualranges(df, key_elements,change_type,feed_number):
         #print(nonullcoldata)
         for group_level,new_series in nonullcoldata.groupby(key_elements):
             #replace NaN in index here
-
+            print(f"This is the index element here: {key_elements}")
             print(f"new series here: {group_level}")
             if change_type == 'PPC':
                 print("new_series")
